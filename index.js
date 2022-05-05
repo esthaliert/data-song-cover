@@ -3,6 +3,8 @@ const express = require('express')
 
 // This file is copied from: https://github.com/thelinmichael/spotify-web-api-node/blob/master/examples/tutorial/00-get-access-token.js
 
+
+// Kommentar
 const scopes = [
     'ugc-image-upload',
     'user-read-playback-state',
