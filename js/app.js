@@ -131,7 +131,7 @@ function refreshDevices(){
 function handleDevicesResponse(){
     if ( this.status == 200 ){
         var data = JSON.parse(this.responseText);
-        console.log(data);
+        //console.log(data);
         removeAllItems( "devices" );
         data.devices.forEach(item => addDevice(item));
     }
@@ -139,7 +139,7 @@ function handleDevicesResponse(){
         refreshAccessToken()
     }
     else {
-        console.log(this.responseText);
+        //console.log(this.responseText);
         alert(this.responseText);
     }
 }
@@ -167,10 +167,16 @@ function refreshPlaylists(){
 function handlePlaylistsResponse(){
     if ( this.status == 200 ){
         var data = JSON.parse(this.responseText);
-        console.log(data);
+        var tag = document.createElement("img");
+        console.log(data.items);
         removeAllItems( "playlists" );
         data.items.forEach(item => addPlaylist(item));
-        document.getElementById('playlists').value=currentPlaylist;
+        document.getElementById('playlists').value = currentPlaylist;
+        var coverList = document.createElement("ul");
+        data.items.forEach(function (cover) {
+            var childElement = '<img alt="Playlist Cover" src="' + cover.images[0].url + '">';
+            $(childElement).appendTo('#playlist-covers');
+        });
     }
     else if ( this.status == 401 ){
         refreshAccessToken()
