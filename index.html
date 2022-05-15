@@ -57,10 +57,48 @@
 
                 </div>
                 <div class="mb-3">
-                    <label for="playlists" class="form-label">Covers</label>
+                    <label for="playlists" class="form-label">Playlisten</label>
                     <div id="playlist-covers"></div>
+                    <label for="playlists" class="form-label">Songs</label>
+                    <div id="track-box">
+                        <ul id="track-list"></ul>
+                    </div>
+                    <div class="ui-interface">
+                        <div class="playlist-ui visible">
+                            <div class="prev">
+                                <div class="ui-icon"></div>
+                            </div>
+                            <div class="play pause">
+                                <div class="ui-icon"></div>
+                            </div>
+                            <div class="shuffle">
+                                <div class="ui-icon"></div>
+                            </div>
+                            <div class="next">
+                                <div class="ui-icon"></div>
+                            </div>
+                            <div class="get-features">
+                                <input class="btn btn-primary btn-sm mt-3" type="button" onclick="getFeatures()" value="get Features">
+                            </div>
+                        </div>
+                    </div>
+                    <div id="visualizer">
+                        <div class="danceability"></div>
+                        <div class="energy"></div>
+                        <div class="key"></div>
+                        <div class="loudness"></div>
+                        <div class="speechiness"></div>
+                        <div class="acousticness"></div>
+                        <div class="instrumentalness"></div>
+                        <div class="liveness"></div>
+                        <div class="valence"></div>
+                    </div>
+                    <div id="analysis">
+                        <div id="sections"></div>
+                    </div>
                 </div>
 
+            
                 <div class="mb-3">
                     <label for="tracks" class="form-label">Tracks</label>
                     <select id="tracks" class="form-control">
@@ -72,6 +110,7 @@
                     <label for="tracks" class="form-label">Album</label>
                     <input id="album" class="form-control">
                 </div>
+            
 
                 <div class="row">
                     <div class="col">
