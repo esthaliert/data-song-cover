@@ -14,17 +14,8 @@
 <body onload="onPageLoad()">
     <div class="container">
 
+        <!--
         <div id="tokenSection" class="row">
-            <div class="col">
-                <p class="welcomeText">This is a javascript app that shows how to use the Spotify API to control the playback 
-                    of music (playlist or albums) on any of your devices connected to your spotify account.</p>
-                <p class="welcomeText">To use this app you need a Spotify client ID and client secret. You get these by 
-                    creating an app in the Spotify developers dashboard here 
-                    <a href="https://developer.spotify.com/dashboard/applications" target="_blank">https://developer.spotify.com/dashboard/applications</a> 
-                     and add https://makeratplay.github.io/SpotifyWebAPI/ in the "Redirect URIs" settings field.
-                </p>                  
-                
-            </div>
             <div class="col">
                 <div class="mb-3">
                     <label for="clientId" class="form-label">Client ID</label>
@@ -37,24 +28,22 @@
                 <input class="btn btn-primary btn-lg" type="button" onclick="requestAuthorization()" value="Request Authorization"><br/>
             </div>
         </div>
+    -->
+        <div id="track_picker">
+            <div class="col">
+                <p>Pick a track</p>
+                <input type="text" maxlength="100" placeholder="Track Name">
+                <button class="btn btn-sm btn-aubergine" type="submit" onclick="getSearchResults()">Submit</button>
+            </div>
+        </div>
 
         <div id="deviceSection" class="row">
             <div class="col">
 
                 <div class="mb-3">
-                    <label for="devices" class="form-label">Devices</label>
-                    <select id="devices" class="form-control">
-                    </select>
-                    <input class="btn btn-primary btn-sm mt-3" type="button" onclick="refreshDevices()" value="Refresh Devices">
-                    <input type="button" class="btn btn-dark btn-sm  mt-3" onclick="transfer()" value="Transfer">
-                </div>
-
-                <div class="mb-3">
                     <label for="playlists" class="form-label">Playlists</label>
                     <select id="playlists" class="form-control">
                     </select>
-                    <input class="btn btn-primary btn-sm mt-3" type="button" onclick="refreshPlaylists()" value="Refresh Playlists">
-
                 </div>
                 <div class="mb-3">
                     <label for="playlists" class="form-label">Playlisten</label>

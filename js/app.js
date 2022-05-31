@@ -26,6 +26,7 @@ const FEATURES = "https://api.spotify.com/v1/audio-features/{{TrackID}}";
 const ANALYSIS = "https://api.spotify.com/v1/audio-analysis/{{TrackID}}";
 const SONG = "https://api.spotify.com/v1/tracks/{{TrackID}}";
 const ARTIST = "https://api.spotify.com/v1/artists/{{ArtistID}}";
+const SEARCH = "https://api.spotify.com/v1/search?type=track,artist&include_external=audio";
 
 function onPageLoad(){
     client_id = localStorage.getItem("client_id");
@@ -139,7 +140,7 @@ function handleDevicesResponse(){
     if ( this.status == 200 ){
         var data = JSON.parse(this.responseText);
         //console.log(data);
-        removeAllItems( "devices" );
+        //removeAllItems( "devices" );
         data.devices.forEach(item => addDevice(item));
     }
     else if ( this.status == 401 ){
@@ -155,7 +156,7 @@ function addDevice(item){
     let node = document.createElement("option");
     node.value = item.id;
     node.innerHTML = item.name;
-    document.getElementById("devices").appendChild(node); 
+    //document.getElementById("devices").appendChild(node); 
 }
 
 function callApi(method, url, body, callback){
@@ -175,7 +176,7 @@ function handlePlaylistsResponse(){
     if ( this.status == 200 ){
         var data = JSON.parse(this.responseText);
         //console.log(data.items);
-        removeAllItems( "playlists" );
+        //removeAllItems( "playlists" );
         data.items.forEach(item => addPlaylist(item));
         document.getElementById('playlists').value = currentPlaylist;
         var coverList = document.createElement("ul");
@@ -279,8 +280,9 @@ function handleSongResponse(){
 function addTrack(item, index){
     var trackID = item.track.id;
     var artistID = item.track.artists[0].id;
+    var trackName = item.track.artists[0].name;
     fetchArtist(artistID);
-    var track = '<li class="song-item" id="' + trackID + '" value="' + index + '" availability="' + item.track.available_markets.length + '" album="' + item.track.album.name + '" duration="' + item.track.duration_ms + '" popularity="' + item.track.popularity + '"><span class="song-title">' + item.track.name + '</span><br/><span class="song-artist" artist-id="' + artistID + '">' + item.track.artists[0].name  + '</span></li>';
+    var track = '<li class="song-item" id="' + trackID + '" value="' + index + '" availability="' + item.track.available_markets.length + '" album="' + item.track.album.name + '" duration="' + item.track.duration_ms + '" popularity="' + item.track.popularity + '"><span class="song-title">' + item.track.name + '</span><br/><span class="song-artist" artist-id="' + artistID + '">' + trackName  + '</span></li>';
     $(track).appendTo('#track-list');
 }
 
@@ -296,7 +298,7 @@ function handleArtistResponse(){
     if ( this.status == 200 ){
         var data = JSON.parse(this.responseText);
         var genre = data.genres;
-        console.log(data);
+        console.log(data.genres);
     }
     else if ( this.status == 401 ){
         refreshAccessToken()
@@ -315,6 +317,14 @@ function getFeatures(){
     getAnalysis();
 }
 
+function getSearchResults(){
+    
+    // var trID = $('.song-item.clicked').attr('id');
+    // url = FEATURES.replace("{{TrackID}}", trID);
+    // callApi( "GET", url, null, handleFeatureResponse );
+    // getAnalysis();
+}
+
 function handleFeatureResponse(){
     if ( this.status == 200 ){
         var data = JSON.parse(this.responseText);
@@ -328,6 +338,7 @@ function handleFeatureResponse(){
         var livenessValue = data.liveness;
         var valenceValue = data.valence;
         var bpm = data.tempo;
+        console.log(data);
         $('.danceability').css('background-color', 'rgb(' + (danceabilityValue*50)*10 + ',' + (danceabilityValue*30)*10 + ',' + (danceabilityValue*70)*10 + ')');
         $('.energy').css('background-color', 'rgb(' + (energyValue*50)*5 + ',' + (energyValue*30)*5 + ',' + (energyValue*20)*5 + ')');
         $('.key').css('background-color', 'rgb(' + (keyValue*30)*8 + ',' + (keyValue*50)*8 + ',' + (keyValue*10)*8 + ')');
@@ -369,6 +380,7 @@ function handleAnalysisResponse(){
         var sections = data.sections;
         var beats = data.beats;
         var sectionTarget = $('#sections');
+        console.log(data);
         var trackDuration = data.track.duration;
         for (var i = 0; i < sections.length; i++) {
             var sectionDuration = sections[i].duration;
@@ -494,7 +506,7 @@ function handleTracksResponse(){
     if ( this.status == 200 ){
         var data = JSON.parse(this.responseText);
         //console.log(data);
-        removeAllItems( "tracks" );
+        //removeAllItems( "tracks" );
         //console.log(data.items);
         data.items.forEach( (item, index) => addTrack(item, index));
     }
@@ -526,7 +538,7 @@ function handleCurrentlyPlayingResponse(){
         if ( data.device != null ){
             // select device
             currentDevice = data.device.id;
-            document.getElementById('devices').value=currentDevice;
+            //document.getElementById('devices').value=currentDevice;
         }
 
         if ( data.context != null ){
@@ -562,7 +574,7 @@ function refreshRadioButtons(){
     if ( data != null){
         radioButtons = JSON.parse(data);
         if ( Array.isArray(radioButtons) ){
-            removeAllItems("radioButtons");
+            //removeAllItems("radioButtons");
             radioButtons.forEach( (item, index) => addRadioButton(item, index));
         }
     }
