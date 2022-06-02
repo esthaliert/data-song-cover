@@ -197,3 +197,21 @@
     flex-direction: row;
     height: 100px;
 }
+#search-results {
+    padding-left: 0;;
+}
+.search-result {
+    cursor: pointer;
+    padding: 10px 0;
+    transition: 0.3s ease;
+    list-style: none;;
+}
+.search-result:hover {
+    padding: 10px;
+    background-color: #dedede;
+}
+.search-result.clicked {
+    padding: 10px;
+    background-color: grey;
+    color: #fff;
+}
