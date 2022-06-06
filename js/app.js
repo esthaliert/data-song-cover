@@ -129,8 +129,8 @@ function getArtist() {
 function handleArtistResponse(){
     if ( this.status == 200 ){
         var data = JSON.parse(this.responseText);
-        var genre = '<ul><li>Genres: ' + data.genres + '</li></ul>';
-
+        var genre = '<ul class="genre-list"><li>Genres: ' + data.genres + '</li></ul>';
+        $('.genre-list').remove();
         $(genre).appendTo('#track-metas');
         console.log(genre);
     }
@@ -402,7 +402,7 @@ function handleCurrentlyPlayingResponse(){
         var data = JSON.parse(this.responseText);
         //console.log(data);
         if ( data.item != null ){
-            document.getElementById("albumImage").src = data.item.album.images[0].url;
+            //document.getElementById("albumImage").src = data.item.album.images[0].url;
             document.getElementById("trackTitle").innerHTML = data.item.name;
             document.getElementById("trackArtist").innerHTML = data.item.artists[0].name;
         }
