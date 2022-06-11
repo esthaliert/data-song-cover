@@ -45,7 +45,7 @@ function onPageLoad(){
             document.getElementById("deviceSection").style.display = 'block';  
             refreshDevices();
             //refreshPlaylists();
-            currentlyPlaying();
+            //currentlyPlaying();
         }
     }
     //refreshRadioButtons();
