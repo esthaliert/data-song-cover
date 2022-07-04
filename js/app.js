@@ -59,11 +59,7 @@ function handleArtistResponse(){
     }
 }
 
-function getFeatures(){
-    var trID = $('.search-result.clicked').attr('id');
-    url = FEATURES.replace("{{TrackID}}", trID);
-    callApi( "GET", url, null, handleFeatureResponse );
-}
+
 
 function getSearchResults(){
     var searchString = $('#searchTrack').val();
@@ -111,28 +107,45 @@ $(document).on("click", "li.search-result" , function() {
     getFeatures();
     getAnalysis();
     getArtist();
+    //draw(keyValue, modeValue, danceabilityValue);
+    reset = true;
+    console.log('start');
 })
+
+function getFeatures(){
+    var trID = $('.search-result.clicked').attr('id');
+    url = FEATURES.replace("{{TrackID}}", trID);
+    callApi( "GET", url, null, handleFeatureResponse );
+}
+
+var danceabilityValue;
+var energyValue;
+var keyValue;
+var modeValue;
+var loudnessValue;
+var speechinessValue;
+var acousticnessValue;
+var instrumentalnessValue;
+var livenessValue;
+var valenceValue;
+var bpm;
+var markets;
 
 function handleFeatureResponse(){
     if ( this.status == 200 ){
         var data = JSON.parse(this.responseText);
         //console.log(data);
-        var danceabilityValue = data.danceability;
-        var energyValue = data.energy;
-        var keyValue = data.key;
-        var modeValue = data.mode;
-        var loudnessValue = data.loudness;
-        var speechinessValue = data.speechiness;
-        var acousticnessValue = data.acousticness;
-        var instrumentalnessValue = data.instrumentalness;
-        var livenessValue = data.liveness;
-        var valenceValue = data.valence;
-        var bpm = data.tempo;
-        //var trackMetas = '<ul class="meta-list">' + danceabilityValue + energyValue + keyValue + modeValue + loudnessValue + speechinessValue + acousticnessValue + instrumentalnessValue + livenessValue + valenceValue + bpm + '</ul>';
-        //$('.meta-list').remove();
-        //$(trackMetas).appendTo('#track-metas');
-        setColors(keyValue, modeValue);
-        setGrid(danceabilityValue);
+        danceabilityValue = data.danceability;
+        energyValue = data.energy;
+        keyValue = data.key;
+        modeValue = data.mode;
+        loudnessValue = data.loudness;
+        speechinessValue = data.speechiness;
+        acousticnessValue = data.acousticness;
+        instrumentalnessValue = data.instrumentalness;
+        livenessValue = data.liveness;
+        valenceValue = data.valence;
+        bpm = data.tempo;
     }
     else if ( this.status == 401 ){
         refreshAccessToken()
@@ -181,8 +194,7 @@ function handleTrackResponse(){
     if ( this.status == 200 ){
         var data = JSON.parse(this.responseText);
         console.log(data);
-        var markets = '<li> Markets: ' + data.available_markets.length + '</li>';
-        $(markets).appendTo('.meta-list');
+        markets = data.available_markets.length;
     }
     else if ( this.status == 401 ){
         refreshAccessToken()
