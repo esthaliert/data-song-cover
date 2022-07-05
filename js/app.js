@@ -2,6 +2,16 @@
 // function domloaded(){
 //     // your code here.
 // }
+function nextForm(){
+    var activeSlide = $('.form-slide.active');
+    var activeNumber = parseInt(activeSlide.attr('form-slide'));
+    var nextNumber = activeNumber+1;
+    console.log(nextNumber);
+    $('.form-slide.active').removeClass('active').addClass('deactivated');
+    $('.form-slide[form-slide="' + nextNumber + '"]').addClass('active');
+
+}
+
 function fetchSongs(plID){
     let playlist_id = plID;
     if ( playlist_id.length > 0 ){
@@ -70,6 +80,7 @@ function getSearchResults(){
 function handleSearchResponse(){
     if ( this.status == 200 ){
         var data = JSON.parse(this.responseText);
+        console.log(data);
         var resultArray = data.tracks.items;
         //console.log(resultArray);
         var resultTarget = $('#search-results');
@@ -81,8 +92,9 @@ function handleSearchResponse(){
             var title = currentObject.name;
             var artist = currentObject.artists[0].name;
             var artistID = currentObject.artists[0].id;
+            var albumID = currentObject.album.id;
             var trackID = currentObject.id;
-            var resultElement = '<li class="search-result" artistid="' + artistID + '" id="' + trackID + '">' + title + ' - ' + artist + '</li>';
+            var resultElement = '<li class="search-result" artistid="' + artistID + '" id="' + trackID + '" albumid="' + albumID + '">' + title + ' - ' + artist + '</li>';
             $(resultElement).appendTo(resultTarget);
         }
         var artist = data.tracks;
@@ -101,6 +113,7 @@ function handleSearchResponse(){
 $(document).on("click", "li.search-result" , function() {
     var clickedSong = $(this);
     var songID = $(this).attr('id');
+    var albumID = $(this).attr('albumid');
     $('.search-result').removeClass('clicked');
     clickedSong.addClass('clicked');
     getTrack();
@@ -108,6 +121,7 @@ $(document).on("click", "li.search-result" , function() {
     getAnalysis();
     getArtist();
     //draw(keyValue, modeValue, danceabilityValue);
+    play(songID, albumID);
     reset = true;
     console.log('start');
 })
@@ -130,6 +144,7 @@ var livenessValue;
 var valenceValue;
 var bpm;
 var markets;
+var happinessValue;
 
 function handleFeatureResponse(){
     if ( this.status == 200 ){
@@ -239,10 +254,10 @@ function removeAllItems( elementId ){
     }
 }
 
-function play(){
-    let playlist_id = document.getElementById("playlists").value;
-    let trackindex = document.getElementById("tracks").value;
-    let album = document.getElementById("album").value;
+function play(_songID, _albumID){
+    //let playlist_id = document.getElementById("playlists").value;
+    let trackindex = _songID;
+    let album = _albumID;
     let body = {};
     if ( album.length > 0 ){
         body.context_uri = album;

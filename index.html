@@ -36,13 +36,26 @@
             <div class="col">
                 <div id="track_picker">
                     <div class="col">
-                        <h4>Let's search for a track:</h4>
-                            <input id="searchTrack" type="text" maxlength="100" placeholder="Track Name">
-                            <div class="btn btn-sm btn-aubergine" id="start-search" style="border: 1px solid #000;" onclick="getSearchResults()">Search</div>
-                            <div id="search-result-box">
-                                <ul id="search-results">
-                                </ul>
+                        <div id="form-slides">
+                            <div class="form-slide slide-0 active" form-slide="0">
+                                <h4 id="title-1">How happy are you?</h4>
+                                <form>
+                                    <input type="range" id="happiness" name="happinessRange" min="1" max="100" onchange="happinessValue = this.value;">
+                                    <div class="btn btn-sm btn-aubergine" id="start-search" style="border: 1px solid #000;" onclick="nextForm()">Go on</div>
+                                </form>
                             </div>
+                            <div class="form-slide slide-1" form-slide="1">
+                                <h4 id="title-2">Let's search for a track:</h4>
+                                <form>
+                                    <input id="searchTrack" type="text" maxlength="100" placeholder="Track Name">
+                                    <div class="btn btn-sm btn-aubergine" id="start-search" style="border: 1px solid #000;" onclick="getSearchResults()">Search</div>
+                                </form>
+                            </div>
+                        </div>
+                        <div id="search-result-box">
+                            <ul id="search-results">
+                            </ul>
+                        </div> 
                     </div>
                 </div>
                 <div id="track-metas">
@@ -59,6 +72,13 @@
             <div class="col">
 
                 <div class="mb-3">
+                    <div class="mb-3">
+                        <label for="devices" class="form-label">Devices</label>
+                        <select id="devices" class="form-control">
+                        </select>
+                        <input class="btn btn-primary btn-sm mt-3" type="button" onclick="refreshDevices()" value="Refresh Devices">
+                        <input type="button" class="btn btn-dark btn-sm  mt-3" onclick="transfer()" value="Transfer">
+                    </div>
                     <!--
                     <label for="playlists" class="form-label">Playlisten</label>
                     <div id="playlist-covers"></div>

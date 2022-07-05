@@ -189,8 +189,19 @@
         transform: translate(0,-50px);
     }
 }
-#analysis {
-    margin-top: 100px;
+#track_picker,
+.col {
+    height: 100%;
+    width: 100%;
+    position: relative;
+    display: block;
+}
+section {
+    display: flex;
+    flex-direction: row;
+    padding-top: 5%;
+    justify-content: center;
+    align-items: stretch;
 }
 #sections {
     display: flex;
@@ -214,4 +225,28 @@
     padding: 10px;
     background-color: grey;
     color: #fff;
+}
+#form-slides {
+    display: block;
+    position: relative;
+    overflow: hidden visible;
+    height: 100%;
+    width: 100%;
+    min-height: 200px;
+}
+.form-slide {
+    width: 100%;
+    height: 100%;
+    min-height: 100px;
+    position: absolute;
+    transition: 0.5s ease;
+    left: -100%;
+    top: -100%;
+}
+.form-slide.active {
+    left: 0;
+    top: 0;
+}.form-slide.deactivated {
+    left: 100%;
+    top: 0;
 }

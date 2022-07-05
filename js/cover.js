@@ -172,6 +172,7 @@ var r = 0;
 var rowCount = 40;
 // let a = 0;
 // let b = 0;
+var yoff = 0.0;
 
 function draw() {
     var valueBgColor;
@@ -219,31 +220,55 @@ function draw() {
         }
     }
 
-    if (markets !== null && typeof markets !== 'undefined') {
-        let iterationCount = 0;
-        var columnCount = Math.floor(markets/rowCount) + 1;
-        for (let a = 0; a < columnCount; a++) {
-            for (let b = 0; b < rowCount; b++) {
-                if (iterationCount < markets) {
-                    marketList[iterationCount++] = new MarketIcon(
-                        marketStartX + (a * 10),
-                        marketStartY + (b * 10)+5,
-                        (marketStartX + (a * 10)) - 15,
-                        (marketStartY + (b * 10)) + 20,
-                        a,
-                        iterationCount
-                    );
-                }
+    // if (markets !== null && typeof markets !== 'undefined') {
+    //     let iterationCount = 0;
+    //     var columnCount = Math.floor(markets/rowCount) + 1;
+    //     for (let a = 0; a < columnCount; a++) {
+    //         for (let b = 0; b < rowCount; b++) {
+    //             if (iterationCount < markets) {
+    //                 marketList[iterationCount++] = new MarketIcon(
+    //                     marketStartX + (a * 10),
+    //                     marketStartY + (b * 10)+5,
+    //                     (marketStartX + (a * 10)) - 15,
+    //                     (marketStartY + (b * 10)) + 20,
+    //                     a,
+    //                     iterationCount
+    //                 );
+    //             }
                 
-            }
-        }
-        if (marketList.length == markets) {
-            for (let i = 0; i < markets; i++) {
-                marketList[i].drawDiagonal();
-            }
-        }
-    }
+    //         }
+    //     }
+    //     if (marketList.length == markets) {
+    //         for (let i = 0; i < markets; i++) {
+    //             marketList[i].drawDiagonal();
+    //         }
+    //     }
+    // }
 
-    
+    if (valenceValue !== null && typeof valenceValue !== 'undefined') {
+        //console.log(valenceValue);
+        translate(width / 2, height / 2);
+        noFill();
+        beginShape();
+        // radius = happiness
+        // radius+ = radius / (valenceValue*10)
+        var valenceRadius = 250/(valenceValue*20);
+        var happinessSize = happinessValue*2.3;
+        for (var radius = 0; radius < happinessSize; radius += valenceRadius) {
+            stroke(255, 255, 255, 255);
+            strokeWeight(1.5);
+            var xoff = 0;
+            for (var a = 0; a < TWO_PI; a += 0.05) {
+            var offset = map(noise(xoff, yoff), 0, 1, -50, 50);
+            var r = radius + offset;
+            //var r = radius;
+            var x = r * cos(a);
+            var y = r * sin(a);
+            vertex(x, y);
+            xoff += 0.1;
+            }
+        }
+        endShape(CLOSE);
+    }
 
 }

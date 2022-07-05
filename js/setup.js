@@ -44,8 +44,8 @@ function onPageLoad(){
             // we have an access token so present device section
             document.getElementById("deviceSection").style.display = 'block';  
             refreshDevices();
-            //refreshPlaylists();
-            //currentlyPlaying();
+            refreshPlaylists();
+            currentlyPlaying();
         }
     }
     //refreshRadioButtons();
@@ -141,8 +141,8 @@ function refreshDevices(){
 function handleDevicesResponse(){
     if ( this.status == 200 ){
         var data = JSON.parse(this.responseText);
-        //console.log(data);
-        //removeAllItems( "devices" );
+        console.log(data);
+        removeAllItems( "devices" );
         data.devices.forEach(item => addDevice(item));
     }
     else if ( this.status == 401 ){
@@ -158,7 +158,7 @@ function addDevice(item){
     let node = document.createElement("option");
     node.value = item.id;
     node.innerHTML = item.name;
-    //document.getElementById("devices").appendChild(node); 
+    document.getElementById("devices").appendChild(node); 
 }
 
 function callApi(method, url, body, callback){
