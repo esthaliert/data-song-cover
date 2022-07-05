@@ -12,6 +12,46 @@ function nextForm(){
 
 }
 
+function currentlyPlaying(){
+    callApi( "GET", PLAYER + "?market=US", null, handleCurrentlyPlayingResponse );
+}
+
+function handleCurrentlyPlayingResponse(){
+    if ( this.status == 200 ){
+        var data = JSON.parse(this.responseText);
+        //console.log(data);
+        if ( data.item != null ){
+            document.getElementById("albumImage").src = data.item.album.images[0].url;
+            document.getElementById("trackTitle").innerHTML = data.item.name;
+            document.getElementById("trackArtist").innerHTML = data.item.artists[0].name;
+        }
+
+
+        if ( data.device != null ){
+            // select device
+            currentDevice = data.device.id;
+            document.getElementById('devices').value=currentDevice;
+        }
+
+        if ( data.context != null ){
+            // select playlist
+            currentPlaylist = data.context.uri;
+            currentPlaylist = currentPlaylist.substring( currentPlaylist.lastIndexOf(":") + 1,  currentPlaylist.length );
+            document.getElementById('playlists').value=currentPlaylist;
+        }
+    }
+    else if ( this.status == 204 ){
+
+    }
+    else if ( this.status == 401 ){
+        refreshAccessToken()
+    }
+    else {
+        console.log(this.responseText);
+        alert(this.responseText);
+    }
+}
+
 function fetchSongs(plID){
     let playlist_id = plID;
     if ( playlist_id.length > 0 ){
@@ -240,19 +280,19 @@ function playSong(plID){
 }
 
 
-function addPlaylist(item){
-    let node = document.createElement("option");
-    node.value = item.id;
-    node.innerHTML = item.name + " (" + item.tracks.total + ")";
-    document.getElementById("playlists").appendChild(node); 
-}
+// function addPlaylist(item){
+//     let node = document.createElement("option");
+//     node.value = item.id;
+//     node.innerHTML = item.name + " (" + item.tracks.total + ")";
+//     document.getElementById("playlists").appendChild(node); 
+// }
 
-function removeAllItems( elementId ){
-    let node = document.getElementById(elementId);
-    while (node.firstChild) {
-        node.removeChild(node.firstChild);
-    }
-}
+// function removeAllItems( elementId ){
+//     let node = document.getElementById(elementId);
+//     while (node.firstChild) {
+//         node.removeChild(node.firstChild);
+//     }
+// }
 
 function play(_songID, _albumID){
     //let playlist_id = document.getElementById("playlists").value;
@@ -260,6 +300,7 @@ function play(_songID, _albumID){
     let album = _albumID;
     let body = {};
     if ( album.length > 0 ){
+        console.log('album');
         body.context_uri = album;
     }
     else{

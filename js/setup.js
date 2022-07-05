@@ -154,6 +154,13 @@ function handleDevicesResponse(){
     }
 }
 
+function removeAllItems( elementId ){
+    let node = document.getElementById(elementId);
+    while (node.firstChild) {
+        node.removeChild(node.firstChild);
+    }
+}
+
 function addDevice(item){
     let node = document.createElement("option");
     node.value = item.id;
@@ -168,4 +175,32 @@ function callApi(method, url, body, callback){
     xhr.setRequestHeader('Authorization', 'Bearer ' + access_token);
     xhr.send(body);
     xhr.onload = callback;
+}
+
+function refreshPlaylists(){
+    callApi( "GET", PLAYLISTS, null, handlePlaylistsResponse );
+}
+
+function handlePlaylistsResponse(){
+    if ( this.status == 200 ){
+        var data = JSON.parse(this.responseText);
+        //console.log(data.items);
+        //removeAllItems( "playlists" );
+        //data.items.forEach(item => addPlaylist(item));
+        // document.getElementById('playlists').value = currentPlaylist;
+        // var coverList = document.createElement("ul");
+        // data.items.forEach(function (playlist) {
+        //     var itemID = playlist.id;
+        //     var childElement = '<div class="cover-container" value="' + itemID + '" ><div class="cover-image" alt="Playlist Cover" style=background-image:url("' + playlist.images[0].url + '");></div></div>';
+        //     $(childElement).appendTo('#playlist-covers');
+        // });
+        // handleCoverSizes();
+    }
+    else if ( this.status == 401 ){
+        refreshAccessToken()
+    }
+    else {
+        console.log(this.responseText);
+        alert(this.responseText);
+    }
 }
