@@ -141,7 +141,7 @@ function refreshDevices(){
 function handleDevicesResponse(){
     if ( this.status == 200 ){
         var data = JSON.parse(this.responseText);
-        console.log(data);
+        //console.log(data);
         removeAllItems( "devices" );
         data.devices.forEach(item => addDevice(item));
     }

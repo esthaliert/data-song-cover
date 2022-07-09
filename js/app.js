@@ -6,7 +6,6 @@ function nextForm(){
     var activeSlide = $('.form-slide.active');
     var activeNumber = parseInt(activeSlide.attr('form-slide'));
     var nextNumber = activeNumber+1;
-    console.log(nextNumber);
     $('.form-slide.active').removeClass('active').addClass('deactivated');
     $('.form-slide[form-slide="' + nextNumber + '"]').addClass('active');
 
@@ -21,9 +20,9 @@ function handleCurrentlyPlayingResponse(){
         var data = JSON.parse(this.responseText);
         //console.log(data);
         if ( data.item != null ){
-            document.getElementById("albumImage").src = data.item.album.images[0].url;
-            document.getElementById("trackTitle").innerHTML = data.item.name;
-            document.getElementById("trackArtist").innerHTML = data.item.artists[0].name;
+            // document.getElementById("albumImage").src = data.item.album.images[0].url;
+            // document.getElementById("trackTitle").innerHTML = data.item.name;
+            // document.getElementById("trackArtist").innerHTML = data.item.artists[0].name;
         }
 
 
@@ -35,9 +34,9 @@ function handleCurrentlyPlayingResponse(){
 
         if ( data.context != null ){
             // select playlist
-            currentPlaylist = data.context.uri;
-            currentPlaylist = currentPlaylist.substring( currentPlaylist.lastIndexOf(":") + 1,  currentPlaylist.length );
-            document.getElementById('playlists').value=currentPlaylist;
+            // currentPlaylist = data.context.uri;
+            // currentPlaylist = currentPlaylist.substring( currentPlaylist.lastIndexOf(":") + 1,  currentPlaylist.length );
+            // document.getElementById('playlists').value=currentPlaylist;
         }
     }
     else if ( this.status == 204 ){
@@ -92,12 +91,101 @@ function getArtist() {
     }
 }
 
+var genreMin = 0.3;
+var genreMax = 0.9;
+var genre;
+let genreSwitches = [genreMin,genreMin,genreMin,genreMin,genreMin,genreMin,genreMin,genreMin,genreMin,genreMin,genreMin,genreMin,genreMin,genreMin,genreMin,genreMin,genreMin];
+const genreNumbers = ['electro house','sonstiges','country','folk','classical','jazz','blues','r&b','hip hop','world','reggae','latin','pop','rock','metal','punk'];
+let genreFamilies = [];
 function handleArtistResponse(){
     if ( this.status == 200 ){
         var data = JSON.parse(this.responseText);
-        var genre = '<ul class="genre-list"><li>Genres: ' + data.genres + '</li></ul>';
-        $('.genre-list').remove();
-        $(genre).appendTo('#track-metas');
+        genre = data.genres;
+        //console.log(genre);
+        genreFamilies = [];
+        genreSwitches = [genreMin,genreMin,genreMin,genreMin,genreMin,genreMin,genreMin,genreMin,genreMin,genreMin,genreMin,genreMin,genreMin,genreMin,genreMin,genreMin,genreMin];
+        // alle Genres durchiterieren
+        for (var g = 0; g < allGenres.length; g++) {
+            // alle Genres des gewählten Songs iterieren
+            for (var s = 0; s < genre.length; s++) {
+                // prüfen, ob der Name eines Genres gleich der Name eines Genres des Songs ist
+                var genreIndex = allGenres[g].name.indexOf(genre[s]);
+                if (genreIndex !== -1) {
+                    // Nur die Genre-Familien-Namen behalten, die auch genau mit dem des Songs übereinstimmen
+                    // Beispielsweise modern rock ≠ rock, würde aber sonst drin bleiben, da indexOf nur prüft, ob "rock" enthalten ist
+                    if (allGenres[g].name.length == genre[s].length) {
+                        for (f = 0; f < allGenres[g].family.length; f++) {
+                            var genreName = allGenres[g].family[f];
+                            if (genreFamilies.indexOf(genreName) == -1) {
+                                genreFamilies.push(allGenres[g].family[f]);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        // Array zur Bestimmung der Vektor-Skalierung befüllen = an welchen Positionen der Blob "ausschägt"
+        if (genreFamilies.length == 0) {
+            // Fallback falls Song kein Genre hat
+            genreSwitches[1] = genreMax - 0.2;
+        } else {
+            // durch die festgelegten Genres durchiterieren
+            for (var c = 0; c < genreNumbers.length; c++) {
+                // durch jedes Genre im erstellten Array iterieren
+                for ( var b = 0; b < genreFamilies.length; b++) {
+                    if (genreFamilies.length == 1) {
+                        genreMax = genreMax;
+                    }
+                    // checken, ob und wo die Strings der beiden Array übereinstimmen
+                    var genrePosition = genreNumbers.indexOf(genreFamilies[b]);
+                    if (c == genrePosition) {
+                        // Bei Übereinstimmung wird das Genre "angeschaltet" & der Wert von genreMin auf 1 geändert
+                        genreSwitches[genrePosition] = genreMax;
+                    }
+                }
+            }
+        }
+        var blendValue = 0.5;
+        // Übergang zwischen Werten mit 1 und 0.3 
+        for (var u = 0; u < genreSwitches.length; u++) {
+            if (genreSwitches[u] == genreMax) {
+                var positionPrev;
+                var positionNext;
+                if (u == 0) {
+                    genreSwitches[16] = genreMax;
+                    if (genreSwitches[1] !== genreMax) {
+                        genreSwitches[1] = blendValue;
+                    }
+                    if (genreSwitches[15] !== genreMax) {
+                        genreSwitches[15] = blendValue;
+                    }
+                } else if (u == 15) {
+                    if (genreSwitches[0] !== genreMax) {
+                        genreSwitches[0] = blendValue;
+                    }
+                    if (genreSwitches[14] !== genreMax) {
+                        genreSwitches[14] = blendValue;
+                    }
+                    if (genreSwitches[16] !== genreMax) {
+                        genreSwitches[16] = blendValue;
+                    }
+                } else {
+                    positionPrev = u - 1;
+                    positionNext = u + 1;
+                    if (genreSwitches[positionPrev] !== genreMax) {
+                        genreSwitches[positionPrev] = blendValue;
+                    }
+                    if (genreSwitches[positionNext] !== genreMax) {
+                        genreSwitches[positionNext] = blendValue;
+                    }
+                    
+                    
+                }
+            } else if (genreSwitches[u] == genreMin) {
+                var randomAdd = Math.random();
+                genreSwitches[u] = genreSwitches[u] + (randomAdd/25);
+            }
+        }
     }
     else if ( this.status == 401 ){
         refreshAccessToken()
@@ -134,7 +222,9 @@ function handleSearchResponse(){
             var artistID = currentObject.artists[0].id;
             var albumID = currentObject.album.id;
             var trackID = currentObject.id;
-            var resultElement = '<li class="search-result" artistid="' + artistID + '" id="' + trackID + '" albumid="' + albumID + '">' + title + ' - ' + artist + '</li>';
+            var trackNr = currentObject.track_number;
+            var discNr = currentObject.disc_number;
+            var resultElement = '<li class="search-result" discNr="' + discNr + '" artistid="' + artistID + '" trackNr="' + trackNr + '" id="' + trackID + '" albumid="' + albumID + '">' + title + ' - ' + artist + '</li>';
             $(resultElement).appendTo(resultTarget);
         }
         var artist = data.tracks;
@@ -153,7 +243,10 @@ function handleSearchResponse(){
 $(document).on("click", "li.search-result" , function() {
     var clickedSong = $(this);
     var songID = $(this).attr('id');
+    var songNr = $(this).attr('trackNr');
     var albumID = $(this).attr('albumid');
+    var discNr = $(this).attr('discNr');
+    happinessValue = $('#happiness').val()
     $('.search-result').removeClass('clicked');
     clickedSong.addClass('clicked');
     getTrack();
@@ -161,8 +254,7 @@ $(document).on("click", "li.search-result" , function() {
     getAnalysis();
     getArtist();
     //draw(keyValue, modeValue, danceabilityValue);
-    play(songID, albumID);
-    reset = true;
+    //playSong(songNr, albumID, discNr);
     console.log('start');
 })
 
@@ -171,6 +263,7 @@ function getFeatures(){
     url = FEATURES.replace("{{TrackID}}", trID);
     callApi( "GET", url, null, handleFeatureResponse );
 }
+
 
 var danceabilityValue;
 var energyValue;
@@ -226,8 +319,8 @@ function handleAnalysisResponse(){
         var beatsNr = '<li>Beats: ' + data.beats.length + '</li>';
         var trackDuration = '<li>Dauer (in ms): ' + data.track.duration + '</li>';
         var trackAnalysis = '<ul class="analysis-list">' + sectionsNr + beatsNr + trackDuration + '</ul>';
-        $('.analysis-list').remove();
-        $(trackAnalysis).appendTo('#track-metas');
+        //$('.analysis-list').remove();
+        //$(trackAnalysis).appendTo('#track-metas');
     }
     else if ( this.status == 401 ){
         refreshAccessToken()
@@ -261,21 +354,29 @@ function handleTrackResponse(){
     }
 }
 
-function playSong(plID){
-    let playlist_id = plID;
-    let trackIndex = $('.song-item.clicked').attr('value');
-    let album = document.getElementById("album").value;
+function playSong(_songNr, _albumID, _discNr){
+    //let playlist_id = plID;
+    let trackIndex = _songNr-1;
+    let album = _albumID;
+    let discNumber = _discNr;
     let body = {};
     if ( album.length > 0 ){
-        body.context_uri = album;
+        body.context_uri = "spotify:album:" + album;
     }
     else {
         body.context_uri = "spotify:playlist:" + playlist_id;
         console.log(body.context_uri);
     }
+    // if (discNumber > 1) {
+    //     console.log('mehr als 2');
+    //     body.offset.position = trackIndex;
+    // } else {
+        
+    // }
      body.offset = {};
-     body.offset.position = trackIndex.length > 0 ? Number(trackIndex) : 0;
      body.offset.position_ms = 0;
+     body.offset.position = trackIndex;
+     console.log(body.offset.position);
     callApi( "PUT", PLAY + "?device_id=" + deviceId(), JSON.stringify(body), handleApiResponse );
 }
 
@@ -294,14 +395,14 @@ function playSong(plID){
 //     }
 // }
 
-function play(_songID, _albumID){
+function play(){
     //let playlist_id = document.getElementById("playlists").value;
     let trackindex = _songID;
     let album = _albumID;
     let body = {};
     if ( album.length > 0 ){
         console.log('album');
-        body.context_uri = album;
+        body.context_uri = "spotify:album:" + album;
     }
     else{
         body.context_uri = "spotify:playlist:" + playlist_id;
@@ -309,6 +410,7 @@ function play(_songID, _albumID){
     body.offset = {};
     body.offset.position = trackindex.length > 0 ? Number(trackindex) : 0;
     body.offset.position_ms = 0;
+    console.log(body);
     callApi( "PUT", PLAY + "?device_id=" + deviceId(), JSON.stringify(body), handleApiResponse );
 }
 
@@ -383,45 +485,45 @@ function handleTracksResponse(){
 }
 
 
-// function currentlyPlaying(){
-//     callApi( "GET", PLAYER + "?market=US", null, handleCurrentlyPlayingResponse );
-// }
+function currentlyPlaying(){
+    callApi( "GET", PLAYER + "?market=US", null, handleCurrentlyPlayingResponse );
+}
 
-// function handleCurrentlyPlayingResponse(){
-//     if ( this.status == 200 ){
-//         var data = JSON.parse(this.responseText);
-//         //console.log(data);
-//         if ( data.item != null ){
-//             //document.getElementById("albumImage").src = data.item.album.images[0].url;
-//             document.getElementById("trackTitle").innerHTML = data.item.name;
-//             document.getElementById("trackArtist").innerHTML = data.item.artists[0].name;
-//         }
+function handleCurrentlyPlayingResponse(){
+    if ( this.status == 200 ){
+        var data = JSON.parse(this.responseText);
+        //console.log(data);
+        if ( data.item != null ){
+            //document.getElementById("albumImage").src = data.item.album.images[0].url;
+            // document.getElementById("trackTitle").innerHTML = data.item.name;
+            // document.getElementById("trackArtist").innerHTML = data.item.artists[0].name;
+        }
 
 
-//         if ( data.device != null ){
-//             // select device
-//             currentDevice = data.device.id;
-//             //document.getElementById('devices').value=currentDevice;
-//         }
+        if ( data.device != null ){
+            // select device
+            currentDevice = data.device.id;
+            //document.getElementById('devices').value=currentDevice;
+        }
 
-//         if ( data.context != null ){
-//             // select playlist
-//             currentPlaylist = data.context.uri;
-//             currentPlaylist = currentPlaylist.substring( currentPlaylist.lastIndexOf(":") + 1,  currentPlaylist.length );
-//             document.getElementById('playlists').value=currentPlaylist;
-//         }
-//     }
-//     else if ( this.status == 204 ){
+        if ( data.context != null ){
+            // select playlist
+            currentPlaylist = data.context.uri;
+            currentPlaylist = currentPlaylist.substring( currentPlaylist.lastIndexOf(":") + 1,  currentPlaylist.length );
+            //document.getElementById('playlists').value=currentPlaylist;
+        }
+    }
+    else if ( this.status == 204 ){
 
-//     }
-//     else if ( this.status == 401 ){
-//         refreshAccessToken()
-//     }
-//     else {
-//         console.log(this.responseText);
-//         alert(this.responseText);
-//     }
-// }
+    }
+    else if ( this.status == 401 ){
+        refreshAccessToken()
+    }
+    else {
+        console.log(this.responseText);
+        alert(this.responseText);
+    }
+}
 
 function saveNewRadioButton(){
     let item = {};

@@ -1,28 +1,58 @@
 class Module {
-    constructor(xOff, yOff, x, y, speed, unit, maxOffset) {
+    constructor(xOff, yOff, x, y, speed, unit, maxOffset, xOrig, yOrig, maxRight, maxBottom, maxLeft, maxTop) {
       this.xOff = xOff;
       this.yOff = yOff;
       this.x = x;
       this.y = y;
       this.speed = speed;
       this.unit = unit;
-      this.xDir = 1;
-      this.yDir = 1;
+      this.xDir = -2;
+      this.yDir = 1.5;
       this.maxOffset = maxOffset;
+      this.xOrig = xOrig;
+      this.yOrig = yOrig;
+      this.maxRight = maxRight;
+      this.maxBottom = maxBottom;
+      this.maxLeft = maxLeft;
+      this.maxTop = maxTop;
     }
   
     // Custom method for updating the variables
     update() {
+        
+        //console.log('x: ' + this.x + ', maxRight: ' + this.maxRight + ', maxLeft: ' + this.maxLeft)
+
+        // if (this.x <= this.maxLeft||this.x >= this.maxRight) {
+        //     this.speed = this.speed*-1;
+        // }
+        // if (this.y <= this.maxTop||this.y >= this.maxBottom) {
+        //     this.speed = this.speed*-1;
+        // }
+        // this.x = this.x + this.speed * (this.xDir * danceabilityValue);
+        // this.y = this.y + this.speed * (this.yDir * danceabilityValue);
+
         this.x = this.x + this.speed * this.xDir;
-        if (this.x >= this.unit || this.x <= 0) {
+        this.y = this.y + this.speed * this.yDir;
+
+        // Test to see if the shape exceeds the boundaries of the screen
+        // If it does, reverse its direction by multiplying by -1
+        if (this.x > this.maxRight || this.x < this.maxLeft) {
             this.xDir *= -1;
-            this.x = this.x + 100 * this.xDir;
-            this.y = this.y + 100 * this.yDir;
         }
-        if (this.y >= this.unit || this.y <= 0) {
+        if (this.y > this.maxBottom || this.y < this.maxTop) {
             this.yDir *= -1;
-            this.y = this.y + 100 * this.yDir;
         }
+
+        // this.x = this.x + this.speed * this.xDir;
+        // if (this.x >= this.unit || this.x <= 0) {
+        //     this.xDir *= -1;
+        //     this.x = this.x + 100 * this.xDir;
+        //     this.y = this.y + 100 * this.yDir;
+        // }
+        // if (this.y >= this.unit || this.y <= 0) {
+        //     this.yDir *= -1;
+        //     this.y = this.y + 100 * this.yDir;
+        // }
 
 
         // this.speed = danceabilityValue*2;
@@ -37,22 +67,16 @@ class Module {
   
     // Custom method for drawing the object
     drawEllipse() {
+        //fill('rgba(255,255,255, 1)');
         fill(255);
         noStroke();
         // push();
         // rotate(r);
-        //ellipse(this.xOff + this.x, this.yOff + this.y, 6, 6);
-        triangle(this.xOff + this.x, this.yOff + this.y - 5, this.xOff + this.x + 4, this.yOff + this.y + 3, this.xOff + this.x - 4, this.yOff + this.y + 3);
+        ellipse(this.xOff + this.x, this.yOff + this.y, 6, 6);
+        //triangle(this.xOff + this.x, this.yOff + this.y - 5, this.xOff + this.x + 4, this.yOff + this.y + 3, this.xOff + this.x - 4, this.yOff + this.y + 3);
         // pop();
     }
   }
-
-class ModulePosition {
-    constructor(xPos, yPos) {
-        this.xPos = xPos;
-        this.yPos = yPos;
-    }
-}
 
 class MarketIcon {
     constructor(diaStartX, diaStartY, diaEndX, diaEndY, column, number) {
@@ -70,8 +94,9 @@ class MarketIcon {
     }
 }
 
+
   
-let unit = 50;
+let unit = 100;
 let count;
 let mods = [];
 let modsPosition = [];
@@ -124,6 +149,9 @@ var contColor;
 
 var gridBalls = [];
 
+var pointsOrigin = [];
+var centerPoint;
+
 
 function setup() {
     createCanvas(500, 500);
@@ -147,21 +175,25 @@ function setup() {
                 y * unit,
                 unit / 2,
                 unit / 2,
-                random(0.01, speedMax),
+                (random(0.01, danceabilityValue))*100,
                 unit,
-                unit/2
+                unit/2,
+                x * unit,
+                y * unit,
+                (x * unit) + (unit / 4),
+                (y * unit) + (unit / 4),
+                (x * unit) - (unit / 4),
+                (y * unit) - (unit / 4)
             );
         }
     }
+    console.log(mods);
 
-    index = 0;
-    for (let y = 0; y < highCount; y++) {
-        for (let x = 0; x < wideCount; x++) {
-            modsPosition[index++] = new ModulePosition(
-                x * unit,
-                y * unit
-            );
-        }
+    centerPoint = createVector(width/2, height/2);
+
+    for(var phi = 0; phi <= 2*PI+2*PI/16; phi += 2*PI/16){
+        pointsOrigin.push(p5.Vector.fromAngle(phi, 230));
+        //points.push(p5.Vector.fromAngle(phi, 230));
     }
 
     
@@ -173,9 +205,18 @@ var rowCount = 40;
 // let a = 0;
 // let b = 0;
 var yoff = 0.0;
+/* valores entre -3 e 3 */
 
 function draw() {
-    var valueBgColor;
+    var mainColor;
+    var keyColor;
+    var rValue;
+    var gValue;
+    var bValue;
+    var rValueCont;
+    var gValueCont;
+    var bValueCont;
+    var contColor;
     var yWave = height/2 + sin(theta) * amplitude;
     iteration++;
     r = r+0.2;
@@ -189,16 +230,22 @@ function draw() {
     // Hintergrundfarbe ermitteln
     function setColors() {
         if (modeValue === 0) {
-            valueBgColor = keyMol[keyValue];
+            mainColor = keyMol[keyValue];
         } else {
-            valueBgColor = keyDur[keyValue];
+            mainColor = keyDur[keyValue];
         }
-        var rValue = valueBgColor[0];
-        var gValue = valueBgColor[1];
-        var bValue = valueBgColor[2];
-        background('rgb(' + rValue + ',' + gValue + ',' + bValue + ')');
-        contColor = 'rgb(' + 255-rValue + ',' + 255-gValue + ',' + 255-bValue + ')';
+        rValue = mainColor[0];
+        gValue = mainColor[1];
+        bValue = mainColor[2];
+        keyColor = 'rgb(' + rValue + ',' + gValue + ',' + bValue + ')';
+        background(keyColor);
+        rValueCont = 255-rValue;
+        gValueCont = 255-gValue;
+        bValueCont = 255-bValue;
+        contColor = 'rgb(' + rValueCont + ',' + gValueCont + ',' + bValueCont + ')';
     }
+
+    strokeWeight(1);
 
 
 
@@ -245,30 +292,50 @@ function draw() {
     //     }
     // }
 
+    if (genre !== null && typeof genre !== 'undefined') {
+        //console.log(genreFamilies);
+        fill(contColor);
+        noStroke();
+        beginShape();
+        var index = 0;
+        //console.log(pointsOrigin);
+        for (p of pointsOrigin){
+            let lerpValue = genreSwitches[index];
+            let lerpedPoint = p5.Vector.mult(p, lerpValue);
+            let point = p5.Vector.add(lerpedPoint, centerPoint);
+            curveVertex(point.x, point.y);
+            index++;
+        }
+        endShape(CLOSE);
+    }
+
     if (valenceValue !== null && typeof valenceValue !== 'undefined') {
-        //console.log(valenceValue);
-        translate(width / 2, height / 2);
+        // console.log('valence: ' + valenceValue);
+        // console.log('happiness: ' + happinessValue);
+        translate(width/2, height / 2);
         noFill();
         beginShape();
         // radius = happiness
         // radius+ = radius / (valenceValue*10)
-        var valenceRadius = 250/(valenceValue*20);
+        var valenceRadius = 250/(valenceValue*80);
         var happinessSize = happinessValue*2.3;
         for (var radius = 0; radius < happinessSize; radius += valenceRadius) {
-            stroke(255, 255, 255, 255);
-            strokeWeight(1.5);
+            //stroke('rgb(' + rValue + ',' + gValue + ',' + bValue + ')');
+            stroke(255);
+            strokeWeight(1.2);
             var xoff = 0;
-            for (var a = 0; a < TWO_PI; a += 0.05) {
-            var offset = map(noise(xoff, yoff), 0, 1, -50, 50);
-            var r = radius + offset;
-            //var r = radius;
-            var x = r * cos(a);
-            var y = r * sin(a);
-            vertex(x, y);
-            xoff += 0.1;
+            for (var a = 0; a < TWO_PI; a += 0.04) {
+                var offset = map(noise(xoff, yoff), 0, 1, -30, 30);
+                var r = radius + offset;
+                //var r = radius;
+                var x = r * cos(a);
+                var y = r * sin(a);
+                curveVertex(x, y);
+                xoff += 0.1;
             }
         }
         endShape(CLOSE);
     }
+
 
 }
