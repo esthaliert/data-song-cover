@@ -1,3 +1,31 @@
+var canvasSize
+
+
+
+$( document ).ready(function() {
+    console.log( "ready!" );
+
+    canvasSize = $('#application').outerWidth();
+    $('#cover-canvas').width(canvasSize).height(canvasSize);
+
+    $( "#happiness" ).on("input", function() {
+        var inputValue = $(this).val();
+        //console.log(inputValue);
+        //$('.slide-0').css('background-color', 'rgb(' + colorValue + ', 255, 255)');
+        var dashOffset = (320/100*inputValue) + 1360;
+        var dashArray = 1100 - (260/100*inputValue);
+        console.log(dashOffset);
+        $('#smile .path-left').css({
+            'stroke-dashoffset' : dashOffset,
+            'stroke-dasharray' : dashArray
+        })
+        ;$('#smile .path-right').css({
+            'stroke-dashoffset' : dashOffset,
+            'stroke-dasharray' : dashArray
+        });
+    });
+});
+
 // document.addEventListener('DOMContentLoaded',domloaded,false);
 // function domloaded(){
 //     // your code here.
@@ -220,11 +248,12 @@ function handleSearchResponse(){
             var title = currentObject.name;
             var artist = currentObject.artists[0].name;
             var artistID = currentObject.artists[0].id;
+            var albumName = currentObject.album.name;
             var albumID = currentObject.album.id;
             var trackID = currentObject.id;
             var trackNr = currentObject.track_number;
             var discNr = currentObject.disc_number;
-            var resultElement = '<li class="search-result" discNr="' + discNr + '" artistid="' + artistID + '" trackNr="' + trackNr + '" id="' + trackID + '" albumid="' + albumID + '">' + title + ' - ' + artist + '</li>';
+            var resultElement = '<li class="search-result" discNr="' + discNr + '" artistid="' + artistID + '" trackNr="' + trackNr + '" id="' + trackID + '" albumid="' + albumID + '"><span class="song-title">' + title + '</span><span class="song-infos"><span class="song-artist">' + artist + '</span><span class="song-album">' + albumName + '</span></span></li>';
             $(resultElement).appendTo(resultTarget);
         }
         var artist = data.tracks;

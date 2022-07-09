@@ -154,7 +154,7 @@ var centerPoint;
 
 
 function setup() {
-    createCanvas(500, 500);
+    createCanvas((windowHeight/100)*88,(windowHeight/100)*88);
     frameRate(20);
 
 
