@@ -1,80 +1,32 @@
-class Module {
-    constructor(xOff, yOff, x, y, speed, unit, maxOffset, xOrig, yOrig, maxRight, maxBottom, maxLeft, maxTop) {
-      this.xOff = xOff;
-      this.yOff = yOff;
-      this.x = x;
-      this.y = y;
-      this.speed = speed;
-      this.unit = unit;
-      this.xDir = -2;
-      this.yDir = 1.5;
-      this.maxOffset = maxOffset;
+class Dots {
+    constructor(xPos, yPos, xOrig, yOrig, speed, xDir, yDir ) {
+      this.xPos = xPos;
+      this.yPos = yPos;
       this.xOrig = xOrig;
       this.yOrig = yOrig;
-      this.maxRight = maxRight;
-      this.maxBottom = maxBottom;
-      this.maxLeft = maxLeft;
-      this.maxTop = maxTop;
+      this.speed = speed;
+      this.xDir = 1.5;
+      this.yDir = 1;
     }
-  
-    // Custom method for updating the variables
+    
+    drawTriangle(){
+      fill(255);
+      noStroke();
+      //ellipse(this.xPos, this.yPos, 6, 6);
+      triangle(this.xPos, this.yPos - 5, this.xPos + 4, this.yPos + 3, this.xPos - 4, this.yPos + 3);
+    }
+    
     update() {
-        
-        //console.log('x: ' + this.x + ', maxRight: ' + this.maxRight + ', maxLeft: ' + this.maxLeft)
-
-        // if (this.x <= this.maxLeft||this.x >= this.maxRight) {
-        //     this.speed = this.speed*-1;
-        // }
-        // if (this.y <= this.maxTop||this.y >= this.maxBottom) {
-        //     this.speed = this.speed*-1;
-        // }
-        // this.x = this.x + this.speed * (this.xDir * danceabilityValue);
-        // this.y = this.y + this.speed * (this.yDir * danceabilityValue);
-
-        this.x = this.x + this.speed * this.xDir;
-        this.y = this.y + this.speed * this.yDir;
-
-        // Test to see if the shape exceeds the boundaries of the screen
-        // If it does, reverse its direction by multiplying by -1
-        if (this.x > this.maxRight || this.x < this.maxLeft) {
-            this.xDir *= -1;
-        }
-        if (this.y > this.maxBottom || this.y < this.maxTop) {
-            this.yDir *= -1;
-        }
-
-        // this.x = this.x + this.speed * this.xDir;
-        // if (this.x >= this.unit || this.x <= 0) {
-        //     this.xDir *= -1;
-        //     this.x = this.x + 100 * this.xDir;
-        //     this.y = this.y + 100 * this.yDir;
-        // }
-        // if (this.y >= this.unit || this.y <= 0) {
-        //     this.yDir *= -1;
-        //     this.y = this.y + 100 * this.yDir;
-        // }
-
-
-        // this.speed = danceabilityValue*2;
-        // this.x = modsPosition[i].xPos + scalar * cos(angle);
-        // this.y = startY + scalar * sin(angle);
-        // if (this.x >= this.maxOffset || this.x <= 0) {
-        //     this.xDir *= -1;
-        //     this.x = this.x + 1 * this.xDir;
-        // }
-        // return(this.x);
-    }
-  
-    // Custom method for drawing the object
-    drawEllipse() {
-        //fill('rgba(255,255,255, 1)');
-        fill(255);
-        noStroke();
-        // push();
-        // rotate(r);
-        ellipse(this.xOff + this.x, this.yOff + this.y, 6, 6);
-        //triangle(this.xOff + this.x, this.yOff + this.y - 5, this.xOff + this.x + 4, this.yOff + this.y + 3, this.xOff + this.x - 4, this.yOff + this.y + 3);
-        // pop();
+      this.xPos = this.xPos + (this.speed*danceabilityValue*3) * this.xDir;
+      this.yPos = this.yPos + (this.speed*danceabilityValue*2.5) * this.yDir;
+      
+      if (this.xPos >= this.xOrig+(dotDistanceX/2)-25 || this.xPos <= this.xOrig-(dotDistanceX/2)+25) {
+        this.xDir *= -1;
+      }
+      
+      if (this.yPos >= this.yOrig+(dotDistanceY/2)-25 || this.yPos <= this.yOrig-(dotDistanceY/2)+25) {
+        this.yDir *= -1;
+      }
     }
   }
 
@@ -94,9 +46,17 @@ class MarketIcon {
     }
 }
 
+class pointsDiagonal {
+    constructor (xPos, yPos) {
+      this.xPos = xPos;
+      this.yPos = yPos;
+    }
+  }
+
 
   
-let unit = 100;
+let unit = 75;
+//let unit = 95;
 let count;
 let mods = [];
 let modsPosition = [];
@@ -114,6 +74,20 @@ var startY = 100;
 
 var marketStartX = 166.666;
 var marketStartY = 25;
+
+let screenshotTrigger = false;
+
+var dotAreaWidth;
+var dotAreaHeight;
+var dotCount = 10;
+var dotDistanceX;
+var dotDistanceY;
+
+let dotList = [];
+
+var positionMaxScale;
+var pointList = [];
+var centerPoint;
 
   // Farbpaletten
 const keyDur = [
@@ -154,9 +128,16 @@ var centerPoint;
 
 
 function setup() {
-    createCanvas((windowHeight/100)*88,(windowHeight/100)*88);
+    coverCanvas = createCanvas((windowHeight/100)*88,(windowHeight/100)*88);
     frameRate(20);
 
+    dotAreaWidth = width-100;
+    dotAreaHeight = height-100;
+    dotDistanceX = dotAreaWidth / dotCount;
+    dotDistanceY = dotAreaHeight / dotCount;
+
+    positionMaxScale = createVector(Math.sqrt(width*width + height*height), Math.sqrt(width*width + height*height));
+    centerPoint = createVector(width/2, height/2);
 
     let wideCount = width / unit;
     let highCount = height / unit;
@@ -168,31 +149,22 @@ function setup() {
     var gridHeight = height-(offsetY*2);
 
     let index = 0;
-    for (let y = 0; y < highCount; y++) {
-        for (let x = 0; x < wideCount; x++) {
-            mods[index++] = new Module(
-                x * unit,
-                y * unit,
-                unit / 2,
-                unit / 2,
-                (random(0.01, danceabilityValue))*100,
-                unit,
-                unit/2,
-                x * unit,
-                y * unit,
-                (x * unit) + (unit / 4),
-                (y * unit) + (unit / 4),
-                (x * unit) - (unit / 4),
-                (y * unit) - (unit / 4)
-            );
+    for (var d = 0; d <= dotCount; d++) {
+        for (var c = 0; c <= dotCount; c++) {
+        dotList[index++] = new Dots (
+            (width-dotAreaWidth)/2 + d * dotDistanceX,
+            (height-dotAreaHeight)/2 + c * dotDistanceY,
+            (width-dotAreaWidth)/2 + d * dotDistanceX,
+            (height-dotAreaHeight)/2 + c * dotDistanceY,
+            random(0.4, 0.8)
+        )
         }
     }
-    console.log(mods);
 
     centerPoint = createVector(width/2, height/2);
 
-    for(var phi = 0; phi <= 2*PI+2*PI/16; phi += 2*PI/16){
-        pointsOrigin.push(p5.Vector.fromAngle(phi, 230));
+    for(var phi = 0; phi <= 2*PI; phi += 2*PI/16){
+        pointsOrigin.push(p5.Vector.fromAngle(phi+centerPoint.x, 200+centerPoint.y));
         //points.push(p5.Vector.fromAngle(phi, 230));
     }
 
@@ -200,14 +172,18 @@ function setup() {
 }
 
 var iteration = 0;
+var screenshotIteration = 0;
 var r = 0;
 var rowCount = 40;
-// let a = 0;
-// let b = 0;
 var yoff = 0.0;
-/* valores entre -3 e 3 */
+var genrePositionY = $(window).height()*-1;
+var genrePositionX = $(window).width()*-1;
+var valenceRotation = 0.0;
+var genreScaling = 0;
+var randomWobble = Math.random();
 
 function draw() {
+    console.log('drawing');
     var mainColor;
     var keyColor;
     var rValue;
@@ -218,7 +194,6 @@ function draw() {
     var bValueCont;
     var contColor;
     var yWave = height/2 + sin(theta) * amplitude;
-    iteration++;
     r = r+0.2;
 
     if (keyValue !== null && typeof keyValue !== 'undefined') {
@@ -238,34 +213,32 @@ function draw() {
         gValue = mainColor[1];
         bValue = mainColor[2];
         keyColor = 'rgb(' + rValue + ',' + gValue + ',' + bValue + ')';
-        background(keyColor);
+        background(0);
         rValueCont = 255-rValue;
         gValueCont = 255-gValue;
         bValueCont = 255-bValue;
         contColor = 'rgb(' + rValueCont + ',' + gValueCont + ',' + bValueCont + ')';
+        // console.log(keyColor);
+        // console.log(contColor);
+        ellipseMode(CENTER);
+        //fill(0);
+        //ellipse(width/2, height/2, width-(width/4),height-(height/4));
     }
 
     strokeWeight(1);
 
-
-
     // Particle-Grid generieren
     function callParticles() {
         if (danceabilityValue !== null && typeof danceabilityValue !== 'undefined') {
-            for (let i = 0; i < count; i++) {
-                mods[i].drawEllipse();
-            }
-            animateParticles();
+            //console.log(danceabilityValue);
+            for (let i = 0; i < dotList.length; i++) {
+                dotList[i].update();
+                dotList[i].drawTriangle();
+              }
         }
     }
     callParticles();
-    
-    function animateParticles() {
-        for (let i = 0; i < count; i++) {
-            mods[i].update();
-            mods[i].drawEllipse();
-        }
-    }
+
 
     // if (markets !== null && typeof markets !== 'undefined') {
     //     let iterationCount = 0;
@@ -294,34 +267,54 @@ function draw() {
 
     if (genre !== null && typeof genre !== 'undefined') {
         //console.log(genreFamilies);
-        fill(contColor);
+        
+        fill(keyColor);
         noStroke();
+        push();
+        translate(width/2, height/2);
+        rectMode(CENTER);
+        rotate(-2*PI/20);
+        scale(genreScaling);
         beginShape();
         var index = 0;
         //console.log(pointsOrigin);
         for (p of pointsOrigin){
+            iteration++;
+            if(iteration%100 == 0) {
+                randomWobble = Math.random();
+            }
             let lerpValue = genreSwitches[index];
-            let lerpedPoint = p5.Vector.mult(p, lerpValue);
-            let point = p5.Vector.add(lerpedPoint, centerPoint);
+            let lerpedPoint = p5.Vector.mult(p, lerpValue+(randomWobble/100));
+            let point = p5.Vector.add(lerpedPoint, 0);
             curveVertex(point.x, point.y);
             index++;
         }
         endShape(CLOSE);
+        pop();
+        if(genreScaling < 0.4) {
+            genreScaling = genreScaling+0.02;
+        } else {
+            genreScaling = 0.4;
+        }
     }
+    
 
     if (valenceValue !== null && typeof valenceValue !== 'undefined') {
         // console.log('valence: ' + valenceValue);
         // console.log('happiness: ' + happinessValue);
+        push();
+        angleMode(RADIANS);
         translate(width/2, height / 2);
+        rotate(valenceRotation);
         noFill();
         beginShape();
         // radius = happiness
         // radius+ = radius / (valenceValue*10)
-        var valenceRadius = 250/(valenceValue*80);
-        var happinessSize = happinessValue*2.3;
+        var valenceRadius = 250/(valenceValue*60);
+        var happinessSize = happinessValue*3.6;
         for (var radius = 0; radius < happinessSize; radius += valenceRadius) {
             //stroke('rgb(' + rValue + ',' + gValue + ',' + bValue + ')');
-            stroke(255);
+            stroke(contColor);
             strokeWeight(1.2);
             var xoff = 0;
             for (var a = 0; a < TWO_PI; a += 0.04) {
@@ -335,7 +328,49 @@ function draw() {
             }
         }
         endShape(CLOSE);
+        pop();
+        valenceRotation = valenceRotation + (0.0001*bpm);
+        //console.log(valenceRotation);
     }
 
+    if (energyValue !== null && typeof energyValue !== 'undefined') {
+        for (let i = 1; i <= energyValue*10; i++) {
+            var scalingCounter = scalingCounter+1;
+            var scaling = i/(energyValue*10+1);
+            let multipliedPoint = p5.Vector.mult(positionMaxScale, scaling);
+            pointList[i-1] = new pointsDiagonal (
+              multipliedPoint.x,
+              multipliedPoint.y
+            )
+            
+        } 
+    
+        for (a = 0; a < pointList.length; a++) {
+            var maxHalf = positionMaxScale.x/2;
+            ellipseMode(CENTER);
+            var ellipseScaling;
+              if (pointList[a].xPos > maxHalf) {
+                ellipseScaling = pointList[pointList.length-1-a].xPos;
+              } else {
+                ellipseScaling = pointList[a].xPos;
+              }
+            
+            noFill();
+            blendMode(SUBTRACT);
+            stroke(keyColor);
+            push();
+            angleMode(DEGREES);
+            rotate(45);
+            ellipse(pointList[a].xPos, 0, ellipseScaling/1.5,ellipseScaling/1.5*2);
+            pop();
+          }
+    }
+
+    if (screenshotTrigger == true) {
+        screenshotIteration++;
+        if (screenshotIteration == 1) {
+            saveCanvas(coverCanvas,"screenshot_" + title.split(' ').join('-') + "_" + artist.split(' ').join('-'),"jpg");
+        }
+    }
 
 }

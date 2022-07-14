@@ -13,6 +13,7 @@ var radioButtons = [];
 const AUTHORIZE = "https://accounts.spotify.com/authorize"
 const TOKEN = "https://accounts.spotify.com/api/token";
 const PLAYLISTS = "https://api.spotify.com/v1/me/playlists";
+const ADD = "https://api.spotify.com/v1/playlists/{{PlaylistID}}/tracks?position=0&uris=spotify%3Atrack%3A";
 const DEVICES = "https://api.spotify.com/v1/me/player/devices";
 const PLAY = "https://api.spotify.com/v1/me/player/play";
 const PAUSE = "https://api.spotify.com/v1/me/player/pause";
@@ -78,7 +79,7 @@ function requestAuthorization(){
     url += "&response_type=code";
     url += "&redirect_uri=" + encodeURI(redirect_uri);
     url += "&show_dialog=true";
-    url += "&scope=user-read-private user-read-email user-modify-playback-state user-read-playback-position user-library-read streaming user-read-playback-state user-read-recently-played playlist-read-private";
+    url += "&scope=user-read-private user-read-email user-modify-playback-state user-read-playback-position user-library-read streaming user-read-playback-state user-read-recently-played playlist-read-private playlist-modify-private playlist-modify-public";
     window.location.href = url; // Show Spotify's authorization screen
 }
 
@@ -181,6 +182,7 @@ function refreshPlaylists(){
     callApi( "GET", PLAYLISTS, null, handlePlaylistsResponse );
 }
 
+var playlistID;
 function handlePlaylistsResponse(){
     if ( this.status == 200 ){
         var data = JSON.parse(this.responseText);
@@ -189,12 +191,16 @@ function handlePlaylistsResponse(){
         //data.items.forEach(item => addPlaylist(item));
         // document.getElementById('playlists').value = currentPlaylist;
         // var coverList = document.createElement("ul");
-        // data.items.forEach(function (playlist) {
-        //     var itemID = playlist.id;
-        //     var childElement = '<div class="cover-container" value="' + itemID + '" ><div class="cover-image" alt="Playlist Cover" style=background-image:url("' + playlist.images[0].url + '");></div></div>';
-        //     $(childElement).appendTo('#playlist-covers');
-        // });
-        // handleCoverSizes();
+        data.items.forEach(function (playlist) {
+            var playlistName = playlist.name;
+            if (playlistName == 'Shape of Data: Generated Songs') {
+                console.log('playlist found');
+                playlistID = playlist.id
+            } else {
+                console.log('playlist not found');
+            }
+        });
+        //console.log(playlistID);
     }
     else if ( this.status == 401 ){
         refreshAccessToken()
