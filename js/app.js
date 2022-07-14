@@ -1,7 +1,11 @@
+var requestSuccess = false;
+var displayingCover = false;
+
+
 $( document ).ready(function() {
     var inputReload = $('#happiness').val();
     generateSmile(inputReload);
-    
+
     console.log( "ready!" );
 
     canvasSize = $('#application').outerWidth();
@@ -153,7 +157,7 @@ function handleArtistResponse(){
         var data = JSON.parse(this.responseText);
         console.log(data);
         genre = data.genres;
-        //console.log(genre);
+        console.log(genre);
         genreFamilies = [];
         genreSwitches = [genreMin,genreMin,genreMin,genreMin,genreMin,genreMin,genreMin,genreMin,genreMin,genreMin,genreMin,genreMin,genreMin,genreMin,genreMin,genreMin];
         // alle Genres durchiterieren
@@ -395,8 +399,9 @@ function handleFeatureResponse(){
         livenessValue = data.liveness;
         valenceValue = data.valence;
         bpm = data.tempo;
-        console.log(bpm);
         console.log(danceabilityValue);
+
+        requestSuccess = true;
     }
     else if ( this.status == 401 ){
         refreshAccessToken()

@@ -183,7 +183,7 @@ var genreScaling = 0;
 var randomWobble = Math.random();
 
 function draw() {
-    console.log('drawing');
+    // console.log('drawing');
     var mainColor;
     var keyColor;
     var rValue;
@@ -195,6 +195,17 @@ function draw() {
     var contColor;
     var yWave = height/2 + sin(theta) * amplitude;
     r = r+0.2;
+
+    if(requestSuccess){
+        console.log("Handle Success");
+
+        ////
+        /// Initialitze
+
+        ///
+
+        requestSuccess = false;
+    }
 
     if (keyValue !== null && typeof keyValue !== 'undefined') {
         setColors();
@@ -218,11 +229,7 @@ function draw() {
         gValueCont = 255-gValue;
         bValueCont = 255-bValue;
         contColor = 'rgb(' + rValueCont + ',' + gValueCont + ',' + bValueCont + ')';
-        // console.log(keyColor);
-        // console.log(contColor);
         ellipseMode(CENTER);
-        //fill(0);
-        //ellipse(width/2, height/2, width-(width/4),height-(height/4));
     }
 
     strokeWeight(1);
@@ -240,34 +247,34 @@ function draw() {
     callParticles();
 
 
-    // if (markets !== null && typeof markets !== 'undefined') {
-    //     let iterationCount = 0;
-    //     var columnCount = Math.floor(markets/rowCount) + 1;
-    //     for (let a = 0; a < columnCount; a++) {
-    //         for (let b = 0; b < rowCount; b++) {
-    //             if (iterationCount < markets) {
-    //                 marketList[iterationCount++] = new MarketIcon(
-    //                     marketStartX + (a * 10),
-    //                     marketStartY + (b * 10)+5,
-    //                     (marketStartX + (a * 10)) - 15,
-    //                     (marketStartY + (b * 10)) + 20,
-    //                     a,
-    //                     iterationCount
-    //                 );
-    //             }
+    if (markets !== null && typeof markets !== 'undefined') {
+        let iterationCount = 0;
+        var columnCount = Math.floor(markets/rowCount) + 1;
+        for (let a = 0; a < columnCount; a++) {
+            for (let b = 0; b < rowCount; b++) {
+                if (iterationCount < markets) {
+                    marketList[iterationCount++] = new MarketIcon(
+                        marketStartX + (a * 10),
+                        marketStartY + (b * 10)+5,
+                        (marketStartX + (a * 10)) - 15,
+                        (marketStartY + (b * 10)) + 20,
+                        a,
+                        iterationCount
+                    );
+                }
                 
-    //         }
-    //     }
-    //     if (marketList.length == markets) {
-    //         for (let i = 0; i < markets; i++) {
-    //             marketList[i].drawDiagonal();
-    //         }
-    //     }
-    // }
+            }
+        }
+        if (marketList.length == markets) {
+            for (let i = 0; i < markets; i++) {
+                marketList[i].drawDiagonal();
+            }
+        }
+    }
 
     if (genre !== null && typeof genre !== 'undefined') {
-        //console.log(genreFamilies);
-        
+
+    // Genre-Blob generieren
         fill(keyColor);
         noStroke();
         push();
@@ -275,21 +282,58 @@ function draw() {
         rectMode(CENTER);
         rotate(-2*PI/20);
         scale(genreScaling);
+
+        let firstPoint = pointsOrigin[pointsOrigin.length-1];
+        let lastPoint = pointsOrigin[1];
+
+        let zeroPoint = pointsOrigin[0];
+
+        let lerpValueFirstPoint = genreSwitches[pointsOrigin.length-1];
+        let lerpValueLastPoint = genreSwitches[1];
+
+        let lerpValueZeroPoint = genreSwitches[0];
+
+        let lerpedFirstPoint = p5.Vector.mult(firstPoint, lerpValueFirstPoint);
+        let lerpedLastPoint = p5.Vector.mult(lastPoint, lerpValueLastPoint);
+
+        let lerpedZeroPoint = p5.Vector.mult(zeroPoint, lerpValueZeroPoint);
+
+        let pointFirstVertex = p5.Vector.add(lerpedFirstPoint, 0);
+        let pointLastVertex = p5.Vector.add(lerpedLastPoint, 0);
+
+        let pointZeroVertex = p5.Vector.add(lerpedZeroPoint, 0);
+
         beginShape();
-        var index = 0;
+        // var index = 0;
         //console.log(pointsOrigin);
-        for (p of pointsOrigin){
+
+        curveVertex(pointFirstVertex.x, pointFirstVertex.y);
+        for (var i = 0; i < pointsOrigin.length; i++){
+            let p = pointsOrigin[i];
+
             iteration++;
-            if(iteration%100 == 0) {
-                randomWobble = Math.random();
-            }
-            let lerpValue = genreSwitches[index];
-            let lerpedPoint = p5.Vector.mult(p, lerpValue+(randomWobble/100));
+            // Scaling ein bisschen abändern, damit sich der Rand etwas bewegt
+            // if(iteration%100 == 0) {
+            //     randomWobble = Math.random();
+            // }
+            let lerpValue = genreSwitches[i];
+            let lerpedPoint = p5.Vector.mult(p, lerpValue);
             let point = p5.Vector.add(lerpedPoint, 0);
+            curveTightness(-0.5);
             curveVertex(point.x, point.y);
-            index++;
+
+            // index++;
         }
+
+        // curveVertex(pointFirstVertex.x, pointFirstVertex.y);
+
+        curveVertex(pointZeroVertex.x, pointZeroVertex.y);
+        curveVertex(pointLastVertex.x, pointLastVertex.y);
+
+        // curveVertex(pointLastVertex.x, pointLastVertex.y);
+
         endShape(CLOSE);
+        
         pop();
         if(genreScaling < 0.4) {
             genreScaling = genreScaling+0.02;
