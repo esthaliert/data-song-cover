@@ -3,6 +3,9 @@ var displayingCover = false;
 
 
 $( document ).ready(function() {
+
+    checkLoginStatus();
+
     var inputReload = $('#happiness').val();
     generateSmile(inputReload);
 
@@ -16,14 +19,14 @@ $( document ).ready(function() {
         generateSmile(inputValue);
     });
 
-    var qrcode = new QRCode("qrcode", {
-        text: "https://open.spotify.com/playlist/3kPMmlPAEaxCUaOgGhfFQS?si=d72486da6c0847ac",
-        width: 500,
-        height: 500,
-        colorDark : "#000000",
-        colorLight : "#ffffff",
-        correctLevel : QRCode.CorrectLevel.H
-    });
+    // var qrcode = new QRCode("qrcode", {
+    //     text: "https://open.spotify.com/playlist/3kPMmlPAEaxCUaOgGhfFQS?si=d72486da6c0847ac",
+    //     width: 500,
+    //     height: 500,
+    //     colorDark : "#000000",
+    //     colorLight : "#ffffff",
+    //     correctLevel : QRCode.CorrectLevel.H
+    // });
 });
 
 function generateSmile(_inputValue) {
@@ -139,7 +142,6 @@ function handleSongResponse(){
 function getArtist() {
     var artist_id = $('.search-result.clicked').attr('artistid');
     artist = $('.search-result.clicked').attr('artist');
-    console.log(artist);
     if ( artist_id.length > 0 ){
         url = ARTIST.replace("{{ArtistID}}", artist_id);
         callApi( "GET", url, null, handleArtistResponse );
@@ -243,6 +245,7 @@ function handleArtistResponse(){
                 genreSwitches[u] = genreSwitches[u] + (randomAdd/25);
             }
         }
+        console.log(genreSwitches);
     }
     else if ( this.status == 401 ){
         refreshAccessToken()
@@ -264,6 +267,11 @@ var albumID;
 var trackID;
 var trackNr;
 var discNr;
+var albumImg;
+
+var resultData = {};
+var trackList = [];
+console.log(resultData);
 
 function getSearchResults(){
     var searchString = $('#searchTrack').val();
@@ -271,19 +279,22 @@ function getSearchResults(){
     url = SEARCH.replace("{{SearchTerm}}", searchString);
     callApi( "GET", url, null, handleSearchResponse );
 }
+var listNumber = 0;
 function handleSearchResponse(){
     if ( this.status == 200 ){
+        resultData = [];
         var data = JSON.parse(this.responseText);
         console.log(data);
         var resultArray = data.tracks.items;
         //console.log(resultArray);
-        $('.form-slide.slide-2').addClass('results');
         var resultTarget = $('#search-results');
+        $('.form-slide.slide-2').addClass('results');
         $('.search-result').each(function(index) {
             $(this).remove();
         });
         for (i = 0; i < resultArray.length; i++) {
             currentObject = resultArray[i];
+            console.log(currentObject);
             title = currentObject.name;
             artist = currentObject.artists[0].name;
             artistID = currentObject.artists[0].id;
@@ -292,10 +303,57 @@ function handleSearchResponse(){
             trackID = currentObject.id;
             trackNr = currentObject.track_number;
             discNr = currentObject.disc_number;
-            var albumImg = currentObject.album.images[1].url;
-            var resultElement = '<li class="search-result" songtitle="' + title + '" artist="' + artist + '" discNr="' + discNr + '" artistid="' + artistID + '" trackNr="' + trackNr + '" id="' + trackID + '" albumid="' + albumID + '"><div class="result-cover"><img src="' + albumImg + '" alt="' + albumName + '"></div><div class="result-content"><span class="song-title">' + title + '</span><span class="song-infos"><span class="song-artist">' + artist + '</span><span class="song-album">' + albumName + '</span></span></div><div class="result-action"><div class="play-song"><div class="play-icon"></div></div></li>';
+            albumImg = currentObject.album.images[1].url;
+            var resultElement = '<li class="search-result" position="' + i + '" songtitle="' + title + '" artist="' + artist + '" discNr="' + discNr + '" artistid="' + artistID + '" trackNr="' + trackNr + '" id="' + trackID + '" albumid="' + albumID + '"><div class="result-cover"><img src="' + albumImg + '" alt="' + albumName + '"></div><div class="result-content"><span class="song-title">' + title + '</span><span class="song-infos"><span class="song-artist">' + artist + '</span><span class="song-album">' + albumName + '</span></span></div><div class="result-action"><div class="play-song"><div class="play-icon"></div></div></li>';
             $(resultElement).appendTo(resultTarget);
+            trackList.push(trackID);
+            getFeatures(trackID);
         }
+        console.log(resultData);
+    }
+    else if ( this.status == 401 ){
+        refreshAccessToken()
+        console.log('401');
+    }
+    else {
+        console.log(this.responseText);
+        //alert('Bitte wähle einen Song aus!');
+    }
+}
+function getFeatures(_trackID){
+    trID = _trackID;
+    url = FEATURES.replace("{{TrackID}}", trID);
+    callApi( "GET", url, null, handleFeatureResponse);
+}
+
+function handleFeatureResponse(){
+    console.log(this.status);
+    if ( this.status == 200 ){
+        trackID = this.responseURL.split("/").pop();
+        console.log(trackID);
+        var data = JSON.parse(this.responseText);
+        console.log(data);
+        var danceabilityValue = data.danceability;
+        var energyValue = data.energy;
+        var keyValue = data.key;
+        console.log('key: ' + keyValue);
+        var modeValue = data.mode;
+        var loudnessValue = data.loudness;
+        var speechinessValue = data.speechiness;
+        var acousticnessValue = data.acousticness;
+        var instrumentalnessValue = data.instrumentalness;
+        var livenessValue = data.liveness;
+        var valenceValue = data.valence;
+        var bpm = data.tempo;
+        resultData[trackID] = 
+            {
+                "key": keyValue,
+                "mode": modeValue,
+                "danceability": danceabilityValue,
+                "energy": energyValue,
+                "valence": valenceValue,
+                "tempo": bpm 
+            }
     }
     else if ( this.status == 401 ){
         refreshAccessToken()
@@ -307,6 +365,19 @@ function handleSearchResponse(){
     }
 }
 
+// _title, _artist, _artistID, _albumName, _albumID, _trackID, _trackNr, _discNr, _albumImg
+function generateResult() {
+    // title = _title; 
+    // artist = _artist; 
+    // artistID = _artistID;
+    // albumName = _albumName
+    // albumID = _albumID;
+    // trackID = _trackID;
+    // trackNr =  _trackNr;
+    // discNr = _discNr;
+    // albumImg = _albumImg;
+    
+}
 
 $(document).on("click", "#start-search", function(event){
     event.preventDefault();
@@ -318,31 +389,48 @@ $(document).on("click", "li.search-result" , function() {
     clickedSong.addClass('clicked');
     console.log('song selected');
 })
+var keyValueCover;
+var modeValueCover;
+var danceabilityValueCover;
+var energyValueCover;
+var loudnessValueCover;
+var valenceValueCover;
+var tempoValueCover;
 $(document).on("click", "li.search-result .play-song" , function() {
     var clickedSong = $('.search-result.clicked');
+    var clickID = clickedSong.attr('id');
+    console.log(resultData);
+    console.log(clickID);
+    var songFeatures = resultData[clickID];
+    keyValueCover = songFeatures.key;
+    modeValueCover = songFeatures.mode;
+    danceabilityValueCover = songFeatures.danceability;
+    energyValueCover = songFeatures.energy;
+    loudnessValueCover = songFeatures.loudness;
+    valenceValueCover = songFeatures.valence;
+    tempoValueCover = songFeatures.tempo;
+    console.log(keyValueCover);
     var songID = clickedSong.attr('id');
-    console.log(songID);
     var songNr = clickedSong.attr('trackNr');
     var albumID = clickedSong.attr('albumid');
     var discNr = clickedSong.attr('discNr');
     happinessValue = $('#happiness').val();
-    addToPlaylist(songID);
     nextForm();
     setTimeout(function() {
-        getFeatures();
         getArtist();
         getTrack(songNr, albumID, discNr);
         getAnalysis();
+        requestSuccess = true;
+        if (keyValueCover !== null && typeof keyValueCover !== 'undefined') {
+            addToPlaylist(songID);
+        }
     }, 1700);
     //playSong(songNr, albumID, discNr);
     console.log('start');
+    
 })
 
-function getFeatures(){
-    var trID = $('.search-result.clicked').attr('id');
-    url = FEATURES.replace("{{TrackID}}", trID);
-    callApi( "GET", url, null, handleFeatureResponse );
-}
+
 
 function addToPlaylist(_songID){
     let body = {};
@@ -350,7 +438,6 @@ function addToPlaylist(_songID){
     body.context_uri = "spotify:track:" + trackID;
     body.offset = {};
     url = ADD.replace("{{PlaylistID}}", playlistID);
-    console.log(url+trackID);
     callApi( "POST", url + trackID, JSON.stringify(body), handlePlaylistEditResponse );
 }
 
@@ -364,54 +451,12 @@ function handlePlaylistEditResponse(){
         console.log('401');
     }
     else {
-        console.log(this.responseText);
+        //console.log(this.responseText);
         //alert('Song konnte nicht hinzugefügt werden.');
     }
 }
 
 
-var danceabilityValue;
-var energyValue;
-var keyValue;
-var modeValue;
-var loudnessValue;
-var speechinessValue;
-var acousticnessValue;
-var instrumentalnessValue;
-var livenessValue;
-var valenceValue;
-var bpm;
-var markets;
-var happinessValue;
-
-function handleFeatureResponse(){
-    if ( this.status == 200 ){
-        var data = JSON.parse(this.responseText);
-        console.log(data);
-        danceabilityValue = data.danceability;
-        energyValue = data.energy;
-        keyValue = data.key;
-        modeValue = data.mode;
-        loudnessValue = data.loudness;
-        speechinessValue = data.speechiness;
-        acousticnessValue = data.acousticness;
-        instrumentalnessValue = data.instrumentalness;
-        livenessValue = data.liveness;
-        valenceValue = data.valence;
-        bpm = data.tempo;
-        console.log(danceabilityValue);
-
-        requestSuccess = true;
-    }
-    else if ( this.status == 401 ){
-        refreshAccessToken()
-        console.log('401');
-    }
-    else {
-        //console.log(this.responseText);
-        alert('Bitte wähle einen Song aus!');
-    }
-}
 
 function getAnalysis(){
     var trID = $('.search-result.clicked').attr('id');
@@ -457,9 +502,9 @@ function handleTrackResponse(_songNr, _albumID, _discNr){
         var discNr = _discNr;
         var songPreview = data.preview_url;
         console.log(songPreview);
-        //if (songPreview.length !== 0) {
+        if (songPreview.length !== null) {
             playPreview(songPreview);
-        // } else {
+        } 
         //     playSong(trackNr, albumID, discNr);
         // }
     }

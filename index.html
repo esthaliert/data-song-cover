@@ -20,12 +20,21 @@
 </head>
 
 <body onload="onPageLoad()">
+    <div id ="error-alert">
+        <div class="error-content">
+            <h2 class="error-title">something <br/>went wrong.</h2>
+            <p class="error-descr">somewhere the connection went missing. please reload this application.</p>
+            <div class="btn" onclick="restart()">Reload</div>
+        </div>
+    </div>
     <section id="application-display" class="gradient-animation">
         <div id="application">
             <div id="form-slides">
                 <div class="form-slide slide-0 active" form-slide="0">
-                    <h1 id="title-1" class="slide-title">Generate your data based Song Cover.</h1>
-                    <div class="btn btn-sm" style="border: 1px solid #000;" onclick="nextForm()">Let's go</div>
+                    <h1 id="title-1" class="slide-title app-title">Shape of <span style="font-style: italic;">music</span></h1>
+                    <h2 class="sub-title">Generate your data based Song Cover.</h2>
+                    <div class="btn btn-sm" id="start-app" onclick="nextForm()">Let's go</div>
+                    <div class="btn btn-sm active" id="log-in" onclick="requestAuthorization()">Log In</div>
                 </div>
                 <div class="form-slide slide-1" form-slide="1">
                     <h2 id="title-1" class="slide-title">How happy are you?</h2>
@@ -55,7 +64,7 @@
                 </div>
                 <div class="form-slide slide-3 canvas-slide" form-slide="3">
                     <main id="cover-canvas"></main>
-                    <div id="qrcode"></div>
+                    <!--<div id="qrcode"></div>-->
                 </div>
             </div>
             <div class="progress-bar"></div>
@@ -63,7 +72,7 @@
     </section>
     <div class="container">
         
-        
+        <!--
         <div id="tokenSection" class="row">
             <div class="col">
                 <div class="mb-3">
@@ -77,8 +86,8 @@
                 <input class="btn btn-primary btn-lg" type="button" onclick="requestAuthorization()" value="Request Authorization"><br/>
             </div>
         </div>
-    
-
+    -->
+        
         <div id="deviceSection" class="row">
             <div class="col">
 

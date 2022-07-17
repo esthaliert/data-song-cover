@@ -2,8 +2,8 @@ var redirect_uri = "http://127.0.0.1:5500/index.html"; // change this your value
 //var redirect_uri = "http://127.0.0.1:5500/index.html";
  
 
-var client_id = ""; 
-var client_secret = ""; // In a real app you should not expose your client_secret to the user
+var client_id = 'a260bc4ff6e2426986e6aa05fabab58a'; 
+var client_secret = 'd15f23b22fbb45d2a4cede2ccf559f61'; // In a real app you should not expose your client_secret to the user
 
 var access_token = null;
 var refresh_token = null;
@@ -39,11 +39,11 @@ function onPageLoad(){
         access_token = localStorage.getItem("access_token");
         if ( access_token == null ){
             // we don't have an access token so present token section
-            document.getElementById("tokenSection").style.display = 'block'; 
+            //document.getElementById("tokenSection").style.display = 'block'; 
         }
         else {
             // we have an access token so present device section
-            document.getElementById("deviceSection").style.display = 'block';  
+            //document.getElementById("deviceSection").style.display = 'block';  
             refreshDevices();
             refreshPlaylists();
             currentlyPlaying();
@@ -69,8 +69,6 @@ function getCode(){
 }
 
 function requestAuthorization(){
-    client_id = document.getElementById("clientId").value;
-    client_secret = document.getElementById("clientSecret").value;
     localStorage.setItem("client_id", client_id);
     localStorage.setItem("client_secret", client_secret); // In a real app you should not expose your client_secret to the user
 
@@ -92,15 +90,26 @@ function fetchAccessToken( code ){
     body += "&client_secret=" + client_secret;
     callAuthorizationApi(body);
 }
-
+refreshAccessToken();
 function refreshAccessToken(){
-    console.log(access_token);
     console.log('refresh');
     refresh_token = localStorage.getItem("refresh_token");
     let body = "grant_type=refresh_token";
     body += "&refresh_token=" + refresh_token;
     body += "&client_id=" + client_id;
     callAuthorizationApi(body);
+    checkLoginStatus();
+}
+function checkLoginStatus() {
+    if (refresh_token.length > 4) {
+        $('#start-app').addClass('active');
+        $('#log-in').removeClass('active');
+        console.log('User eingeloggt');
+    } else {
+        console.log('User nicht eingeloggt');
+        $('#log-in').addClass('active');
+        $('#start-app').removeClass('active');
+    }
 }
 
 function callAuthorizationApi(body){
@@ -110,14 +119,10 @@ function callAuthorizationApi(body){
     xhr.setRequestHeader('Authorization', 'Basic ' + btoa(client_id + ":" + client_secret));
     xhr.send(body);
     xhr.onload = handleAuthorizationResponse;
-    console.log(client_id);
-    console.log(client_secret);
 }
 
 function handleAuthorizationResponse(){
     if ( this.status == 200 ){
-        var data = JSON.parse(this.responseText);
-        console.log(data);
         var data = JSON.parse(this.responseText);
         if ( data.access_token != undefined ){
             access_token = data.access_token;
@@ -131,7 +136,7 @@ function handleAuthorizationResponse(){
     }
     else {
         console.log(this.responseText);
-        alert(this.responseText);
+        //alert(this.responseText);
     }
 }
 
@@ -176,6 +181,7 @@ function callApi(method, url, body, callback){
     xhr.setRequestHeader('Authorization', 'Bearer ' + access_token);
     xhr.send(body);
     xhr.onload = callback;
+    //console.log(xhr);
 }
 
 function refreshPlaylists(){

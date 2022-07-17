@@ -17,8 +17,8 @@ class Dots {
     }
     
     update() {
-      this.xPos = this.xPos + (this.speed*danceabilityValue*3) * this.xDir;
-      this.yPos = this.yPos + (this.speed*danceabilityValue*2.5) * this.yDir;
+      this.xPos = this.xPos + (this.speed*danceabilityValueCover*3) * this.xDir;
+      this.yPos = this.yPos + (this.speed*danceabilityValueCover*2.5) * this.yDir;
       
       if (this.xPos >= this.xOrig+(dotDistanceX/2)-25 || this.xPos <= this.xOrig-(dotDistanceX/2)+25) {
         this.xDir *= -1;
@@ -31,18 +31,21 @@ class Dots {
   }
 
 class MarketIcon {
-    constructor(diaStartX, diaStartY, diaEndX, diaEndY, column, number) {
+    constructor(diaStartX, diaStartY, diaEndX, diaEndY, column, number, speed) {
         this.diaStartX = diaStartX;
         this.diaStartY = diaStartY;
         this.diaEndX = diaEndX;
         this.diaEndY = diaEndY;
         this.column = column;
         this.number = number;
+        this.speed = 1;
     }
     drawDiagonal() {
         stroke(255);
         strokeWeight(2);
-        line(this.diaStartX-(35*this.column), this.diaStartY, this.diaEndX-(35*this.column), this.diaEndY);
+        // this.diaStartY = this.diaStartY+1;
+        // this.diaEndY = this.diaEndY+1;
+        line(this.diaStartX, this.diaStartY, this.diaEndX, this.diaEndY);
     }
 }
 
@@ -73,7 +76,7 @@ var startX = 100;	// set the x-coordinate for the circle center
 var startY = 100;
 
 var marketStartX = 166.666;
-var marketStartY = 25;
+var marketStartY = 0;
 
 let screenshotTrigger = false;
 
@@ -93,18 +96,18 @@ var centerPoint;
 const keyDur = [
     [0,255,0], 
     [0,255,128],
-    [0,255,128],
     [0,255,255],
     [0,128,255],
     [0,0,255],
     [128,0,255],
     [255,0,255],
     [255,0,128],
-    [255,0,0,],
+    [255,0,0],
     [255,128,0],
     [255,255,0],
     [128,255,0]
 ];
+
 const keyMol = [
     [0,151,0],
     [0,151,76],
@@ -128,7 +131,12 @@ var centerPoint;
 
 
 function setup() {
-    coverCanvas = createCanvas((windowHeight/100)*88,(windowHeight/100)*88);
+    if (windowHeight > windowWidth) {
+        coverCanvas = createCanvas((windowWidth/100)*88,(windowWidth/100)*88);
+    } else {
+        coverCanvas = createCanvas((windowHeight/100)*88,(windowHeight/100)*88);
+    }
+    
     frameRate(20);
 
     dotAreaWidth = width-100;
@@ -168,13 +176,35 @@ function setup() {
         //points.push(p5.Vector.fromAngle(phi, 230));
     }
 
+    let iterationCount = 0;
+        for (let b = 0; b < rowCount; b++) {
+            if (iterationCount < rowCount) {
+                marketList[iterationCount++] = new MarketIcon(
+                    marketStartX + (1 * 10),
+                    marketStartY + (b * 10)+5,
+                    (marketStartX + (1 * 10)) - 10,
+                    (marketStartY + (b * 10)) + 15,
+                    1,
+                    iterationCount,
+                    1
+                );
+            }
+            
+        }
+        console.log(marketList);
+
     
 }
 
 var iteration = 0;
 var screenshotIteration = 0;
 var r = 0;
-var rowCount = 40;
+var rowCount;
+if ($(window).height() > $(window).height()) {
+    rowCount = ((($(window).height()/100)*88)/100)*2;
+} else {
+    rowCount = ((($(window).height()/100)*88)/100)*2;
+}
 var yoff = 0.0;
 var genrePositionY = $(window).height()*-1;
 var genrePositionX = $(window).width()*-1;
@@ -199,216 +229,207 @@ function draw() {
     if(requestSuccess){
         console.log("Handle Success");
 
-        ////
-        /// Initialitze
-
-        ///
-
         requestSuccess = false;
     }
 
-    if (keyValue !== null && typeof keyValue !== 'undefined') {
-        setColors();
-    } else {
-        background(0);
-    }
-
-    // Hintergrundfarbe ermitteln
-    function setColors() {
-        if (modeValue === 0) {
-            mainColor = keyMol[keyValue];
+    
+    try {
+        if (keyValueCover !== null && typeof keyValueCover !== 'undefined') {
+            setColors();
         } else {
-            mainColor = keyDur[keyValue];
+            background(0);
         }
-        rValue = mainColor[0];
-        gValue = mainColor[1];
-        bValue = mainColor[2];
-        keyColor = 'rgb(' + rValue + ',' + gValue + ',' + bValue + ')';
-        background(0);
-        rValueCont = 255-rValue;
-        gValueCont = 255-gValue;
-        bValueCont = 255-bValue;
-        contColor = 'rgb(' + rValueCont + ',' + gValueCont + ',' + bValueCont + ')';
-        ellipseMode(CENTER);
-    }
-
-    strokeWeight(1);
-
-    // Particle-Grid generieren
-    function callParticles() {
-        if (danceabilityValue !== null && typeof danceabilityValue !== 'undefined') {
-            //console.log(danceabilityValue);
-            for (let i = 0; i < dotList.length; i++) {
-                dotList[i].update();
-                dotList[i].drawTriangle();
-              }
+    
+        // Hintergrundfarbe ermitteln
+        function setColors() {
+            if (modeValueCover === 0) {
+                mainColor = keyMol[keyValueCover];
+            } else if (modeValueCover === 1){
+                mainColor = keyDur[keyValueCover];
+            } else {
+                console.log('fail');
+            }
+            rValue = mainColor[0];
+            gValue = mainColor[1];
+            bValue = mainColor[2];
+            keyColor = 'rgb(' + rValue + ',' + gValue + ',' + bValue + ')';
+            background(0);
+            rValueCont = 255-rValue;
+            gValueCont = 255-gValue;
+            bValueCont = 255-bValue;
+            contColor = 'rgb(' + rValueCont + ',' + gValueCont + ',' + bValueCont + ')';
+            ellipseMode(CENTER);
         }
-    }
-    callParticles();
-
-
-    if (markets !== null && typeof markets !== 'undefined') {
-        let iterationCount = 0;
-        var columnCount = Math.floor(markets/rowCount) + 1;
-        for (let a = 0; a < columnCount; a++) {
-            for (let b = 0; b < rowCount; b++) {
-                if (iterationCount < markets) {
-                    marketList[iterationCount++] = new MarketIcon(
-                        marketStartX + (a * 10),
-                        marketStartY + (b * 10)+5,
-                        (marketStartX + (a * 10)) - 15,
-                        (marketStartY + (b * 10)) + 20,
-                        a,
-                        iterationCount
-                    );
-                }
+    
+        strokeWeight(1);
+    
+        // Particle-Grid generieren
+        function callParticles() {
+            if (danceabilityValueCover !== null && typeof danceabilityValueCover !== 'undefined') {
+                //console.log(danceabilityValueCover);
+                for (let i = 0; i < dotList.length; i++) {
+                    dotList[i].update();
+                    dotList[i].drawTriangle();
+                  }
+            }
+        }
+    
+        callParticles();
+    
+        //if (markets !== null && typeof markets !== 'undefined') {
+        for (let i = 0; i < marketList.length; i++) {
+            marketList[i].drawDiagonal();
+        }
+        //}
+    
+        if (genre !== null && typeof genre !== 'undefined') {
+    
+        // Genre-Blob generieren
+            fill(keyColor);
+            noStroke();
+            push();
+            translate(width/2, height/2);
+            rectMode(CENTER);
+            angleMode(DEGREES)
+            rotate(135);
+            scale(genreScaling);
+    
+            let firstPoint = pointsOrigin[pointsOrigin.length-1];
+            let lastPoint = pointsOrigin[1];
+    
+            let zeroPoint = pointsOrigin[0];
+    
+            let lerpValueFirstPoint = genreSwitches[pointsOrigin.length-1];
+            let lerpValueLastPoint = genreSwitches[1];
+    
+            let lerpValueZeroPoint = genreSwitches[0];
+    
+            let lerpedFirstPoint = p5.Vector.mult(firstPoint, lerpValueFirstPoint);
+            let lerpedLastPoint = p5.Vector.mult(lastPoint, lerpValueLastPoint);
+    
+            let lerpedZeroPoint = p5.Vector.mult(zeroPoint, lerpValueZeroPoint);
+    
+            let pointFirstVertex = p5.Vector.add(lerpedFirstPoint, 0);
+            let pointLastVertex = p5.Vector.add(lerpedLastPoint, 0);
+    
+            let pointZeroVertex = p5.Vector.add(lerpedZeroPoint, 0);
+    
+            beginShape();
+            // var index = 0;
+            //console.log(pointsOrigin);
+    
+            curveVertex(pointFirstVertex.x, pointFirstVertex.y);
+            for (var i = 0; i < pointsOrigin.length; i++){
+                let p = pointsOrigin[i];
+    
+                iteration++;
+                // Scaling ein bisschen abändern, damit sich der Rand etwas bewegt
+                // if(iteration%100 == 0) {
+                //     randomWobble = Math.random();
+                // }
+                let lerpValue = genreSwitches[i];
+                let lerpedPoint = p5.Vector.mult(p, lerpValue);
+                let point = p5.Vector.add(lerpedPoint, 0);
+                curveTightness(-0.5);
+                curveVertex(point.x, point.y);
+    
+                // index++;
+            }
+    
+            // curveVertex(pointFirstVertex.x, pointFirstVertex.y);
+    
+            curveVertex(pointZeroVertex.x, pointZeroVertex.y);
+            curveVertex(pointLastVertex.x, pointLastVertex.y);
+    
+            // curveVertex(pointLastVertex.x, pointLastVertex.y);
+    
+            endShape(CLOSE);
+            
+            pop();
+            if(genreScaling < 0.4) {
+                genreScaling = genreScaling+0.02;
+            } else {
+                genreScaling = 0.4;
+            }
+        }
+        
+    
+        if (valenceValueCover !== null && typeof valenceValueCover !== 'undefined') {
+            //console.log('valence: ' + valenceValueCover);
+            // console.log('happiness: ' + happinessValue);
+            try {
+                
+            } catch (error) {
                 
             }
-        }
-        if (marketList.length == markets) {
-            for (let i = 0; i < markets; i++) {
-                marketList[i].drawDiagonal();
-            }
-        }
-    }
-
-    if (genre !== null && typeof genre !== 'undefined') {
-
-    // Genre-Blob generieren
-        fill(keyColor);
-        noStroke();
-        push();
-        translate(width/2, height/2);
-        rectMode(CENTER);
-        rotate(-2*PI/20);
-        scale(genreScaling);
-
-        let firstPoint = pointsOrigin[pointsOrigin.length-1];
-        let lastPoint = pointsOrigin[1];
-
-        let zeroPoint = pointsOrigin[0];
-
-        let lerpValueFirstPoint = genreSwitches[pointsOrigin.length-1];
-        let lerpValueLastPoint = genreSwitches[1];
-
-        let lerpValueZeroPoint = genreSwitches[0];
-
-        let lerpedFirstPoint = p5.Vector.mult(firstPoint, lerpValueFirstPoint);
-        let lerpedLastPoint = p5.Vector.mult(lastPoint, lerpValueLastPoint);
-
-        let lerpedZeroPoint = p5.Vector.mult(zeroPoint, lerpValueZeroPoint);
-
-        let pointFirstVertex = p5.Vector.add(lerpedFirstPoint, 0);
-        let pointLastVertex = p5.Vector.add(lerpedLastPoint, 0);
-
-        let pointZeroVertex = p5.Vector.add(lerpedZeroPoint, 0);
-
-        beginShape();
-        // var index = 0;
-        //console.log(pointsOrigin);
-
-        curveVertex(pointFirstVertex.x, pointFirstVertex.y);
-        for (var i = 0; i < pointsOrigin.length; i++){
-            let p = pointsOrigin[i];
-
-            iteration++;
-            // Scaling ein bisschen abändern, damit sich der Rand etwas bewegt
-            // if(iteration%100 == 0) {
-            //     randomWobble = Math.random();
-            // }
-            let lerpValue = genreSwitches[i];
-            let lerpedPoint = p5.Vector.mult(p, lerpValue);
-            let point = p5.Vector.add(lerpedPoint, 0);
-            curveTightness(-0.5);
-            curveVertex(point.x, point.y);
-
-            // index++;
-        }
-
-        // curveVertex(pointFirstVertex.x, pointFirstVertex.y);
-
-        curveVertex(pointZeroVertex.x, pointZeroVertex.y);
-        curveVertex(pointLastVertex.x, pointLastVertex.y);
-
-        // curveVertex(pointLastVertex.x, pointLastVertex.y);
-
-        endShape(CLOSE);
-        
-        pop();
-        if(genreScaling < 0.4) {
-            genreScaling = genreScaling+0.02;
-        } else {
-            genreScaling = 0.4;
-        }
-    }
-    
-
-    if (valenceValue !== null && typeof valenceValue !== 'undefined') {
-        // console.log('valence: ' + valenceValue);
-        // console.log('happiness: ' + happinessValue);
-        push();
-        angleMode(RADIANS);
-        translate(width/2, height / 2);
-        rotate(valenceRotation);
-        noFill();
-        beginShape();
-        // radius = happiness
-        // radius+ = radius / (valenceValue*10)
-        var valenceRadius = 250/(valenceValue*60);
-        var happinessSize = happinessValue*3.6;
-        for (var radius = 0; radius < happinessSize; radius += valenceRadius) {
-            //stroke('rgb(' + rValue + ',' + gValue + ',' + bValue + ')');
-            stroke(contColor);
-            strokeWeight(1.2);
-            var xoff = 0;
-            for (var a = 0; a < TWO_PI; a += 0.04) {
-                var offset = map(noise(xoff, yoff), 0, 1, -30, 30);
-                var r = radius + offset;
-                //var r = radius;
-                var x = r * cos(a);
-                var y = r * sin(a);
-                curveVertex(x, y);
-                xoff += 0.1;
-            }
-        }
-        endShape(CLOSE);
-        pop();
-        valenceRotation = valenceRotation + (0.0001*bpm);
-        //console.log(valenceRotation);
-    }
-
-    if (energyValue !== null && typeof energyValue !== 'undefined') {
-        for (let i = 1; i <= energyValue*10; i++) {
-            var scalingCounter = scalingCounter+1;
-            var scaling = i/(energyValue*10+1);
-            let multipliedPoint = p5.Vector.mult(positionMaxScale, scaling);
-            pointList[i-1] = new pointsDiagonal (
-              multipliedPoint.x,
-              multipliedPoint.y
-            )
-            
-        } 
-    
-        for (a = 0; a < pointList.length; a++) {
-            var maxHalf = positionMaxScale.x/2;
-            ellipseMode(CENTER);
-            var ellipseScaling;
-              if (pointList[a].xPos > maxHalf) {
-                ellipseScaling = pointList[pointList.length-1-a].xPos;
-              } else {
-                ellipseScaling = pointList[a].xPos;
-              }
-            
-            noFill();
-            blendMode(SUBTRACT);
-            stroke(keyColor);
             push();
-            angleMode(DEGREES);
-            rotate(45);
-            ellipse(pointList[a].xPos, 0, ellipseScaling/1.5,ellipseScaling/1.5*2);
+            angleMode(RADIANS);
+            translate(width/2, height / 2);
+            rotate(valenceRotation);
+            noFill();
+            beginShape();
+            // radius = happiness
+            // radius+ = radius / (valenceValueCover*10)
+            var valenceRadius = 250/(valenceValueCover*60);
+            var happinessSize = happinessValue*3.6;
+            for (var radius = 0; radius < happinessSize; radius += valenceRadius) {
+                //stroke('rgb(' + rValue + ',' + gValue + ',' + bValue + ')');
+                stroke(contColor);
+                strokeWeight(1.2);
+                var xoff = 0;
+                for (var a = 0; a < TWO_PI; a += 0.04) {
+                    var offset = map(noise(xoff, yoff), 0, 1, -30, 30);
+                    var r = radius + offset;
+                    //var r = radius;
+                    var x = r * cos(a);
+                    var y = r * sin(a);
+                    curveVertex(x, y);
+                    xoff += 0.1;
+                }
+            }
+            endShape(CLOSE);
             pop();
-          }
+            valenceRotation = valenceRotation + (0.0001*tempoValueCover);
+            //console.log(valenceRotation);
+        }
+    
+        if (energyValueCover !== null && typeof energyValueCover !== 'undefined') {
+            for (let i = 1; i <= energyValueCover*10; i++) {
+                var scalingCounter = scalingCounter+1;
+                var scaling = i/(energyValueCover*10+1);
+                let multipliedPoint = p5.Vector.mult(positionMaxScale, scaling);
+                pointList[i-1] = new pointsDiagonal (
+                  multipliedPoint.x,
+                  multipliedPoint.y
+                )
+                
+            } 
+        
+            for (a = 0; a < pointList.length; a++) {
+                var maxHalf = positionMaxScale.x/2;
+                ellipseMode(CENTER);
+                var ellipseScaling;
+                  if (pointList[a].xPos > maxHalf) {
+                    ellipseScaling = pointList[pointList.length-1-a].xPos;
+                  } else {
+                    ellipseScaling = pointList[a].xPos;
+                  }
+                
+                noFill();
+                //blendMode(SUBTRACT);
+                stroke(keyColor);
+                push();
+                angleMode(DEGREES);
+                rotate(45);
+                ellipse(pointList[a].xPos, 0, ellipseScaling/1.5,ellipseScaling/1.5*2);
+                pop();
+              }
+        }
+    } catch (error) {
+        console.log('error');
+        $('#error-alert').addClass('active');
     }
+    
 
     if (screenshotTrigger == true) {
         screenshotIteration++;

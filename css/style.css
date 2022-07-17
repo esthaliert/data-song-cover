@@ -234,18 +234,22 @@ h5,
 h6 {
     font-family: 'Space Mono', sans-serif;
     color: #000;
+    line-height: 1;
 }
 h1 {
-    font-size: 9vh;
-    margin-bottom: 5vh;
+    margin-bottom: 1vh;
 }
 h2 {
-    font-size: 7vh;
-    text-align: center;
+    text-align: left;
     transition: 0.5s ease;
+}
+.sub-title {
+    margin-bottom: 6%;
+    text-transform: lowercase;
 }
 .results h2 {
     font-size: 4vh;
+    line-height: 1;
 }
 #application-display {
     width: 100%;
@@ -393,6 +397,9 @@ h2 {
 .form-slide.slide-0 {
     align-items: flex-start;
 }
+.form-slide.slide-2 {
+    overflow-y: scroll;
+}
 form {
     display: flex;
     flex-direction: column;
@@ -417,20 +424,39 @@ form {
     0%{width: 0;}
     100%{width: 100%;}
 }
+.app-title.slide-title {
+    text-align: left;
+}
 .slide-title {
     text-transform: lowercase;
     font-weight: 800;
+    text-align: center;
 }
 input {
     border-radius: 0;
     border: 2px solid #000;
     padding: 10px;
     letter-spacing: 1px;
-    font-size: 3vh;
     font-family: 'Sarabun', sans-serif;
 }
 input[type="text"] {
-    padding: 1vh 0 1vh 2vh;
+    padding: 20px 0 20px 40px;
+}
+#log-in,
+#start-app {
+    display: none;
+}
+#log-in.btn {
+    border: 4px solid #1DB954!important;
+    background-color: #1DB954;
+}
+#log-in.btn:hover {
+    color: #1DB954;
+    background-color: #fff;
+}
+#log-in.active,
+#start-app.active {
+    display: block;
 }
 .btn {
     border-radius: 0;
@@ -439,7 +465,6 @@ input[type="text"] {
     padding: 15px 30px 16px;
     border: 4px solid #000!important;
     letter-spacing: 1px;
-    font-size: 3vh;
 }
 .btn:hover {
     color: #000;
@@ -460,7 +485,6 @@ input[type="text"] {
     display: flex;
     flex-direction: row;
     align-items: stretch;
-    margin: 2vh 0 7vh;
     position: relative;
     transition: 0.5s ease;
 }
@@ -468,8 +492,6 @@ input[type="text"] {
     content: "Choose wisely";
     position: absolute;
     left: 0;
-    bottom: -5vh;
-    font-size: 2.5vh;
 }
 #search-result-box,
 #search-results {
@@ -483,7 +505,6 @@ input[type="text"] {
     position: relative;
 }
 .result-cover img {
-    width: 8vh;
     height: auto;
     border: 1px solid #000;
 }
@@ -645,4 +666,94 @@ section {
 #deviceSection {
     height: 0;
     overflow: hidden;
+}
+#error-alert {
+    position: absolute;
+    width: 100vw;
+    height: 100vh;
+    z-index: 1;
+    background-color: rgba(0,0,0,0.8);
+    justify-content: center;
+    align-items: center;
+    display: none;
+}
+#error-alert.active {
+    display: flex;
+}
+.error-content {
+    background-color: #fff;
+    max-width: 80%;
+    padding: 3%;
+
+}
+.error-title {
+    font-size: 6em;
+    font-weight: 800;
+}
+.error-descr {
+    font-size: 2.5em;
+    line-height: 1.1;
+    margin: 4% 0 6%;
+}
+@media screen and (orientation:portrait) {
+    #application {
+        width: 88vw;
+        height: 88vw;
+    }
+    h1 {
+        font-size: 12vw;
+    }
+    h2 {
+        font-size: 7vw;
+    }
+    .btn {
+        font-size: 2.5vw;
+    }
+    input {
+        font-size: 2.5vw;
+    }
+    input[type="text"] {
+        padding: 1vw 0 1vw 2vw;
+    }
+    #search-form {
+        margin: 2vw 0 7vw;
+    }
+    #search-form::before {
+        font-size: 2vw;
+        bottom: -5vw;
+    }
+    .result-cover img {
+        width: 8vw;
+    }
+}
+@media screen and (orientation:landscape) {
+    #application {
+        width: 88vh;
+        height: 88vh;
+    }
+    h1 {
+        font-size: 12vh;
+    }
+    h2 {
+        font-size: 7vh;
+    }
+    .btn {
+        font-size: 2.5vw;
+    }
+    input {
+        font-size: 2.5vh;
+    }
+    input[type="text"] {
+        padding: 1vh 0 1vh 2vh;
+    }
+    #search-form {
+        margin: 2vh 0 7vh;
+    }
+    #search-form::before {
+        font-size: 2vh;
+        bottom: -5vh;
+    }
+    .result-cover img {
+        width: 8vh;
+    }
 }
