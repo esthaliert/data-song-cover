@@ -31,7 +31,7 @@
         <div id="application">
             <div id="form-slides">
                 <div class="form-slide slide-0 active" form-slide="0">
-                    <h1 id="title-1" class="slide-title app-title">Shape of <span style="font-style: italic;">music</span></h1>
+                    <h1 id="title-1" class="slide-title app-title">Shapes of <span style="font-style: italic;">music</span></h1>
                     <h2 class="sub-title">Generate your data based Song Cover.</h2>
                     <div class="btn btn-sm" id="start-app" onclick="nextForm()">Let's go</div>
                     <div class="btn btn-sm active" id="log-in" onclick="requestAuthorization()">Log In</div>
@@ -65,6 +65,20 @@
                 <div class="form-slide slide-3 canvas-slide" form-slide="3">
                     <main id="cover-canvas"></main>
                     <!--<div id="qrcode"></div>-->
+                    <div id="endscreen">
+                        <div id="timer">
+                            <svg version="1.1" id="timer_svg" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+                                viewBox="0 0 150 150" style="enable-background:new 0 0 150 150;" xml:space="preserve">
+                                <style type="text/css">
+                                    .circle{fill:none;}
+                                </style>
+                                <g>
+                                    <circle class="circle" cx="75" cy="75" r="67.97"/>
+                                </g>
+                            </svg>
+                        </div>
+                        <div class="btn" id="reload" onclick="restart()">Restart</div>
+                    </div>
                 </div>
             </div>
             <div class="progress-bar"></div>

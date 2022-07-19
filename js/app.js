@@ -2,6 +2,9 @@ var requestSuccess = false;
 var displayingCover = false;
 
 
+
+
+
 $( document ).ready(function() {
 
     checkLoginStatus();
@@ -27,7 +30,11 @@ $( document ).ready(function() {
     //     colorLight : "#ffffff",
     //     correctLevel : QRCode.CorrectLevel.H
     // });
+
+    // Credit: Mateusz Rybczonec
+
 });
+
 
 function generateSmile(_inputValue) {
     var inputValue = _inputValue;
@@ -45,6 +52,12 @@ function generateSmile(_inputValue) {
 
 function restart() {
     location.reload(true);
+}
+
+function startTimer() {
+    setTimeout(function() {
+        restart();
+    }, 30000)
 }
 
 
@@ -304,7 +317,7 @@ function handleSearchResponse(){
             trackNr = currentObject.track_number;
             discNr = currentObject.disc_number;
             albumImg = currentObject.album.images[1].url;
-            var resultElement = '<li class="search-result" position="' + i + '" songtitle="' + title + '" artist="' + artist + '" discNr="' + discNr + '" artistid="' + artistID + '" trackNr="' + trackNr + '" id="' + trackID + '" albumid="' + albumID + '"><div class="result-cover"><img src="' + albumImg + '" alt="' + albumName + '"></div><div class="result-content"><span class="song-title">' + title + '</span><span class="song-infos"><span class="song-artist">' + artist + '</span><span class="song-album">' + albumName + '</span></span></div><div class="result-action"><div class="play-song"><div class="play-icon"></div></div></li>';
+            var resultElement = '<li class="search-result" position="' + i + '" songtitle="' + title + '" artist="' + artist + '" discNr="' + discNr + '" artistid="' + artistID + '" trackNr="' + trackNr + '" id="' + trackID + '" albumid="' + albumID + '"><div class="result-cover"><img src="' + albumImg + '" alt="' + albumName + '"></div><div class="result-content"><p class="song-title">' + title + '</p><span class="song-infos"><span class="song-artist">' + artist + '</span><span class="song-album">' + albumName + '</span></span></div><div class="result-action"><div class="play-song"><div class="play-icon"></div></div></li>';
             $(resultElement).appendTo(resultTarget);
             trackList.push(trackID);
             getFeatures(trackID);
@@ -330,13 +343,11 @@ function handleFeatureResponse(){
     console.log(this.status);
     if ( this.status == 200 ){
         trackID = this.responseURL.split("/").pop();
-        console.log(trackID);
         var data = JSON.parse(this.responseText);
         console.log(data);
         var danceabilityValue = data.danceability;
         var energyValue = data.energy;
         var keyValue = data.key;
-        console.log('key: ' + keyValue);
         var modeValue = data.mode;
         var loudnessValue = data.loudness;
         var speechinessValue = data.speechiness;
@@ -345,6 +356,7 @@ function handleFeatureResponse(){
         var livenessValue = data.liveness;
         var valenceValue = data.valence;
         var bpm = data.tempo;
+        var duration = data.duration_ms;
         resultData[trackID] = 
             {
                 "key": keyValue,
@@ -352,7 +364,9 @@ function handleFeatureResponse(){
                 "danceability": danceabilityValue,
                 "energy": energyValue,
                 "valence": valenceValue,
-                "tempo": bpm 
+                "loudness": loudnessValue,
+                "tempo": bpm,
+                "duration": duration
             }
     }
     else if ( this.status == 401 ){
@@ -396,33 +410,41 @@ var energyValueCover;
 var loudnessValueCover;
 var valenceValueCover;
 var tempoValueCover;
+var durationValueCover;
+var durationCount;
+var songID;
+var songNr;
+var albumID;
+var discNr;
 $(document).on("click", "li.search-result .play-song" , function() {
     var clickedSong = $('.search-result.clicked');
     var clickID = clickedSong.attr('id');
     console.log(resultData);
-    console.log(clickID);
     var songFeatures = resultData[clickID];
     keyValueCover = songFeatures.key;
     modeValueCover = songFeatures.mode;
     danceabilityValueCover = songFeatures.danceability;
     energyValueCover = songFeatures.energy;
+    console.log(energyValueCover);
     loudnessValueCover = songFeatures.loudness;
     valenceValueCover = songFeatures.valence;
     tempoValueCover = songFeatures.tempo;
-    console.log(keyValueCover);
-    var songID = clickedSong.attr('id');
-    var songNr = clickedSong.attr('trackNr');
-    var albumID = clickedSong.attr('albumid');
-    var discNr = clickedSong.attr('discNr');
+    console.log(tempoValueCover);
+    durationValueCover = songFeatures.duration;
+    durationCount = parseInt(durationValueCover/10000);
+    songID = clickedSong.attr('id');
+    songNr = clickedSong.attr('trackNr');
+    albumID = clickedSong.attr('albumid');
+    discNr = clickedSong.attr('discNr');
     happinessValue = $('#happiness').val();
+    console.log(albumID);
     nextForm();
     setTimeout(function() {
         getArtist();
         getTrack(songNr, albumID, discNr);
         getAnalysis();
-        requestSuccess = true;
         if (keyValueCover !== null && typeof keyValueCover !== 'undefined') {
-            addToPlaylist(songID);
+            //addToPlaylist(songID);
         }
     }, 1700);
     //playSong(songNr, albumID, discNr);
@@ -492,19 +514,21 @@ function getTrack(){
     callApi( "GET", url, null, handleTrackResponse );
 }
 
-function handleTrackResponse(_songNr, _albumID, _discNr){
+function handleTrackResponse(){
     if ( this.status == 200 ){
         var data = JSON.parse(this.responseText);
         console.log(data);
         markets = data.available_markets.length;
-        var trackNr = _songNr;
-        var albumID = _albumID;
-        var discNr = _discNr;
         var songPreview = data.preview_url;
-        console.log(songPreview);
-        if (songPreview.length !== null) {
+        var songPosition = data.track_number;
+        var songDuration = data.duration_ms;
+        //console.log(songPreview);
+        if (songPreview !== null) {
             playPreview(songPreview);
-        } 
+        } else {
+            console.log('no preview');
+            playSong(songPosition, albumID, discNr, songDuration);
+        }
         //     playSong(trackNr, albumID, discNr);
         // }
     }
@@ -548,14 +572,17 @@ function playPreview(_songPreview){
     setTimeout(function() {
         screenshotTrigger = true;
         $('.canvas-slide').addClass('end-screen');
+        startTimer();
     }, 30000)
 };
 
-function playSong(_songNr, _albumID, _discNr){
+function playSong(_songPosition, _albumID, _discNr, _songDuration){
     //let playlist_id = plID;
-    let trackIndex = _songNr-1;
+    let trackIndex = _songPosition-1;
     let album = _albumID;
     let discNumber = _discNr;
+    let trackDuration = _songDuration;
+    console.log(trackDuration);
     let body = {};
     if ( album.length > 0 ){
         body.context_uri = "spotify:album:" + album;
@@ -575,6 +602,17 @@ function playSong(_songNr, _albumID, _discNr){
      body.offset.position = trackIndex;
      console.log(body.offset.position);
     callApi( "PUT", PLAY + "?device_id=" + deviceId(), JSON.stringify(body), handleApiResponse );
+
+    setTimeout(function() {
+        $('.progress-bar').addClass('active');
+    }, 500)
+
+    setTimeout(function() {
+        pause();
+        screenshotTrigger = true;
+        $('.canvas-slide').addClass('end-screen');
+        startTimer();
+    }, trackDuration)
 }
 
 

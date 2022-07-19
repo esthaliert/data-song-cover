@@ -31,14 +31,15 @@ class Dots {
   }
 
 class MarketIcon {
-    constructor(diaStartX, diaStartY, diaEndX, diaEndY, column, number, speed) {
+    constructor(diaStartX, diaStartY, diaEndX, diaEndY, column, number, speed, dir) {
         this.diaStartX = diaStartX;
         this.diaStartY = diaStartY;
         this.diaEndX = diaEndX;
         this.diaEndY = diaEndY;
         this.column = column;
         this.number = number;
-        this.speed = 1;
+        this.speed = speed;
+        this.dir = dir;
     }
     drawDiagonal() {
         stroke(255);
@@ -46,6 +47,20 @@ class MarketIcon {
         // this.diaStartY = this.diaStartY+1;
         // this.diaEndY = this.diaEndY+1;
         line(this.diaStartX, this.diaStartY, this.diaEndX, this.diaEndY);
+    }
+    updateDiagonal() {
+        this.diaStartY = this.diaStartY+((tempoValueCover)/10) * this.dir;
+        this.diaEndY = this.diaEndY+((tempoValueCover)/10) * this.dir;
+        if (this.diaStartY > height) {
+            this.dir = -1;
+            this.diaStartY = this.diaEndY;
+            this.diaEndY = this.diaStartY-10;
+        }
+        if (this.diaStartY < 0) {
+            this.dir = 1;
+            this.diaStartY = this.diaEndY;
+            this.diaEndY = this.diaStartY+10;
+        }
     }
 }
 
@@ -186,6 +201,7 @@ function setup() {
                     (marketStartY + (b * 10)) + 15,
                     1,
                     iterationCount,
+                    1,
                     1
                 );
             }
@@ -199,18 +215,24 @@ function setup() {
 var iteration = 0;
 var screenshotIteration = 0;
 var r = 0;
-var rowCount;
-if ($(window).height() > $(window).height()) {
-    rowCount = ((($(window).height()/100)*88)/100)*2;
-} else {
-    rowCount = ((($(window).height()/100)*88)/100)*2;
-}
+var rowCount = 100;
+// if ($(window).height() > $(window).width()) {
+//     rowCount = ((($(window).width()/100)*88)/100)*1000;
+// } else {
+//     rowCount = ((($(window).height()/100)*88)/100)*1000;
+// }
 var yoff = 0.0;
 var genrePositionY = $(window).height()*-1;
 var genrePositionX = $(window).width()*-1;
 var valenceRotation = 0.0;
 var genreScaling = 0;
 var randomWobble = Math.random();
+// var ellipseScaling;
+// if (windowHeight > windowWidth) {
+//     ellipseScaling = (windowWidth/100)*88;
+// } else {
+//     ellipseScaling = (windowHeight/100)*88;
+// }
 
 function draw() {
     // console.log('drawing');
@@ -237,7 +259,7 @@ function draw() {
         if (keyValueCover !== null && typeof keyValueCover !== 'undefined') {
             setColors();
         } else {
-            background(0);
+            background('#141115');
         }
     
         // Hintergrundfarbe ermitteln
@@ -253,7 +275,7 @@ function draw() {
             gValue = mainColor[1];
             bValue = mainColor[2];
             keyColor = 'rgb(' + rValue + ',' + gValue + ',' + bValue + ')';
-            background(0);
+            background('#141115');
             rValueCont = 255-rValue;
             gValueCont = 255-gValue;
             bValueCont = 255-bValue;
@@ -276,11 +298,15 @@ function draw() {
     
         callParticles();
     
-        //if (markets !== null && typeof markets !== 'undefined') {
-        for (let i = 0; i < marketList.length; i++) {
-            marketList[i].drawDiagonal();
+        if (tempoValueCover !== null && typeof tempoValueCover !== 'undefined') {
+            for (let i = 0; i < durationCount; i++) {
+                push();
+                //translate(0, -height*5);
+                marketList[i].drawDiagonal();
+                marketList[i].updateDiagonal();
+                pop();
+            }
         }
-        //}
     
         if (genre !== null && typeof genre !== 'undefined') {
     
@@ -290,8 +316,12 @@ function draw() {
             push();
             translate(width/2, height/2);
             rectMode(CENTER);
-            angleMode(DEGREES)
-            rotate(135);
+            angleMode(DEGREES);
+            if (windowHeight > windowWidth) {
+                rotate(135);
+            } else {
+                rotate(-22.5);
+            }
             scale(genreScaling);
     
             let firstPoint = pointsOrigin[pointsOrigin.length-1];
@@ -300,7 +330,7 @@ function draw() {
             let zeroPoint = pointsOrigin[0];
     
             let lerpValueFirstPoint = genreSwitches[pointsOrigin.length-1];
-            let lerpValueLastPoint = genreSwitches[1];
+            let lerpValueLastPoint = genreSwitches[1]-0.2;
     
             let lerpValueZeroPoint = genreSwitches[0];
     
@@ -394,16 +424,17 @@ function draw() {
         }
     
         if (energyValueCover !== null && typeof energyValueCover !== 'undefined') {
-            for (let i = 1; i <= energyValueCover*10; i++) {
+            var energyInt = parseInt(energyValueCover*10);
+            for (let i = 1; i <= energyInt; i++) {
                 var scalingCounter = scalingCounter+1;
-                var scaling = i/(energyValueCover*10+1);
+                var scaling = (1/energyInt)*i;
                 let multipliedPoint = p5.Vector.mult(positionMaxScale, scaling);
                 pointList[i-1] = new pointsDiagonal (
                   multipliedPoint.x,
                   multipliedPoint.y
                 )
                 
-            } 
+            }
         
             for (a = 0; a < pointList.length; a++) {
                 var maxHalf = positionMaxScale.x/2;
@@ -419,9 +450,13 @@ function draw() {
                 //blendMode(SUBTRACT);
                 stroke(keyColor);
                 push();
+                translate(-((1/energyInt)*0.5)*1000, -((1/energyInt)*0.5)*1000);
                 angleMode(DEGREES);
                 rotate(45);
-                ellipse(pointList[a].xPos, 0, ellipseScaling/1.5,ellipseScaling/1.5*2);
+                ellipse(pointList[a].xPos, 0, ellipseScaling/2.5,ellipseScaling/2.5*2);
+                stroke('rgb(255,0,0)');
+                strokeWeight(5);
+                //point(pointList[a].xPos, 0, ellipseScaling/2.5,ellipseScaling/2.5*2);
                 pop();
               }
         }

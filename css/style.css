@@ -233,11 +233,12 @@ h4,
 h5,
 h6 {
     font-family: 'Space Mono', sans-serif;
-    color: #000;
+    color: #141115;
     line-height: 1;
 }
 h1 {
     margin-bottom: 1vh;
+    color: #FF00FF;
 }
 h2 {
     text-align: left;
@@ -255,7 +256,7 @@ h2 {
     width: 100%;
     height: 100vh;
     display: flex;
-    background: #000000;
+    background: #141115;
     justify-content: center;
     align-items: center;
     padding: 0;
@@ -263,7 +264,7 @@ h2 {
     z-index: 0;
 }
 #application-display::before {
-    content: "";
+    /*content: "";*/
     width: 100%;
     height: 100%;
     background-color: #fff;
@@ -273,7 +274,7 @@ h2 {
     transition: 0.5s ease;
 }
 #application-display::after {
-    background-color: #000;
+    background-color: #141115;
     opacity: 1;
     content: "";
     width: 100%;
@@ -317,7 +318,7 @@ h2 {
     100%{background-position:90% 0%}
 }
 #application-display.gradient-animation.dark-mode {
-    background: #000;
+    background: #141115;
     -webkit-animation: none!important;
     -moz-animation: none!important;
     -o-animation: none!important;
@@ -337,7 +338,7 @@ h2 {
     position: absolute;
     top: 0;
     left: 0;
-    border: 4px solid #000;
+    border: 4px solid #141115;
     z-index: 2;
 }
 #form-slides {
@@ -399,6 +400,7 @@ h2 {
 }
 .form-slide.slide-2 {
     overflow-y: scroll;
+    overflow-x: hidden;
 }
 form {
     display: flex;
@@ -434,7 +436,7 @@ form {
 }
 input {
     border-radius: 0;
-    border: 2px solid #000;
+    border: 2px solid #141115;
     padding: 10px;
     letter-spacing: 1px;
     font-family: 'Sarabun', sans-serif;
@@ -460,15 +462,16 @@ input[type="text"] {
 }
 .btn {
     border-radius: 0;
-    background-color: #000;
+    background-color: #141115;
     color: #fff;
     padding: 15px 30px 16px;
-    border: 4px solid #000!important;
+    border: 4px solid #141115!important;
     letter-spacing: 1px;
 }
 .btn:hover {
-    color: #000;
-    background-color: #fff;
+    color: #FFF;
+    background-color: #FF00FF;
+    border: 4px solid #FF00FF!important;
 }
 #smile {
     width: 75%;
@@ -481,6 +484,9 @@ input[type="text"] {
     stroke-dashoffset: 1360; /* = 1% */
     stroke-width: 8px;
 }
+#title-2 {
+    margin-top: 5%;
+}
 #search-form {
     display: flex;
     flex-direction: row;
@@ -492,6 +498,7 @@ input[type="text"] {
     content: "Choose wisely";
     position: absolute;
     left: 0;
+    font-family: 'Space Mono', sans-serif;
 }
 #search-result-box,
 #search-results {
@@ -503,35 +510,63 @@ input[type="text"] {
     display: flex;
     flex-direction: row;
     position: relative;
+    transition: 0.3s ease;
+    border: 2px solid #fff;
+    cursor: pointer;
+    padding: 10px;
+    transition: 0.3s ease;
+    list-style: none;
+}
+.search-result:hover {
+    border: 2px solid #141115;
+}
+.search-result.clicked {
+    border: 2px solid #FF00FF;
+    background-color: #FF00FF;
+    color: #fff;
+}
+.result-cover {
+    flex: 1;
 }
 .result-cover img {
     height: auto;
-    border: 1px solid #000;
+    border: 1px solid #141115;
+}
+.clicked .result-cover img {
+    border: 1px solid #fff;
 }
 .search-result .result-content {
     flex-basis: 100%;
     padding-left: 13px;
-    padding-right: 40px;
+    padding-right: 55px;
+    max-width: 90%;
 }
 .song-title {
     font-weight: 600;
     font-size: 22px;
     font-family: 'Space Mono', sans-serif;
     line-height: 1.3;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    overflow: hidden;
+    width: 100%;
+    margin-bottom: 1%;
 }
 .song-infos {
     display: flex;
     flex-direction: row;
     font-size: 16px;
-}
-.song-infos span {
-    
+    width: 100%;
 }
 .song-artist {
     padding-right: 20px;
+    flex-basis: 40%;
+    letter-spacing: 0.5px;
+    font-family: 'Space Mono', sans-serif;
 }
 .song-album {
-    text-align: right;
+    text-align: left;
+    flex-basis: 60%;
 }
 .result-action {
     display: flex;
@@ -558,7 +593,7 @@ input[type="text"] {
     height: 0; 
     border-top: 20px solid transparent;
     border-bottom: 20px solid transparent;
-    border-left: 30px solid #000;
+    border-left: 30px solid #FFF;
     transform: scale(0);
     transition: 0.3s ease;
 }
@@ -593,16 +628,15 @@ input[type="text"] {
         transform: scale(0.5) translate(0,-45%);
     }
 }
-#qrcode {
+#endscreen {
     position: absolute;
     bottom: -100%;
-    width: 35%;
-    height: 31%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
 }
-#qrcode img {
-    width: 100%;
-}
-.canvas-slide.end-screen #qrcode {
+.canvas-slide.end-screen #endscreen {
     animation-delay: 2.4s;
     -webkit-animation: moveUp 1s ease-in forwards;
     -moz-animation: moveUp 1s ease-in forwards;
@@ -614,8 +648,40 @@ input[type="text"] {
         bottom: -100%;
     }
     100% {
-        bottom: 10%;
+        bottom: 5%;
     }
+}
+#timer {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    padding-bottom: 4%;
+}
+#timer_svg {
+    width: 25%;
+    stroke: #141115;
+    stroke-width: 10;
+    stroke-dashoffset: -430;
+    stroke-dasharray: 430;
+    transform: rotate(90deg) scaleX(-1);
+}
+.end-screen #timer_svg {
+    -webkit-animation: runTimer 30s linear forwards;
+    -moz-animation: runTimer 30s linear forwards;
+    -o-animation: runTimer 30s linear forwards;
+    animation: runTimer 30s linear forwards;
+}
+@keyframes runTimer {
+    0% {
+        stroke-dashoffset: -430;
+    }
+    100% {
+        stroke-dashoffset: 0;
+    }
+}
+#timer_svg g {
+    width: 90%;
 }
 #track-list {
     list-style: none;
@@ -624,7 +690,7 @@ input[type="text"] {
     padding: 2% 2%;
     cursor: pointer;
     transition: 0.3s ease;
-    border-bottom: 2px solid #000;
+    border-bottom: 2px solid #141115;
 }
 #track-list li:hover {
     background-color: rgba(0,0,0,0.1);
@@ -650,18 +716,6 @@ section {
     display: flex;
     flex-direction: row;
     height: 100px;
-}
-.search-result {
-    cursor: pointer;
-    padding: 10px;
-    transition: 0.3s ease;
-    list-style: none;;
-}
-.search-result:hover {
-    background-color: #dedede;
-}
-.search-result.clicked {
-    background-color: #f0f0f0;
 }
 #deviceSection {
     height: 0;
@@ -738,7 +792,7 @@ section {
         font-size: 7vh;
     }
     .btn {
-        font-size: 2.5vw;
+        font-size: 2.5vh;
     }
     input {
         font-size: 2.5vh;

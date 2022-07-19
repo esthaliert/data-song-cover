@@ -77,7 +77,7 @@ function requestAuthorization(){
     url += "&response_type=code";
     url += "&redirect_uri=" + encodeURI(redirect_uri);
     url += "&show_dialog=true";
-    url += "&scope=user-read-private user-read-email user-modify-playback-state user-read-playback-position user-library-read streaming user-read-playback-state user-read-recently-played playlist-read-private playlist-modify-private playlist-modify-public";
+    url += "&scope=user-read-private user-read-email user-modify-playback-state user-read-playback-position user-library-read streaming user-read-playback-state user-read-recently-played playlist-read-private playlist-modify-private playlist-modify-public app-remote-control";
     window.location.href = url; // Show Spotify's authorization screen
 }
 
@@ -199,7 +199,7 @@ function handlePlaylistsResponse(){
         // var coverList = document.createElement("ul");
         data.items.forEach(function (playlist) {
             var playlistName = playlist.name;
-            if (playlistName == 'Shape of Data: Generated Songs') {
+            if (playlistName == 'Shapes of Music') {
                 console.log('playlist found');
                 playlistID = playlist.id
             } else {
