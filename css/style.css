@@ -330,9 +330,10 @@ h2 {
     height: 88vh;
     position: relative;
     z-index: 2;
+    border: 4px solid #141115;
 }
 #application::before {
-    content: "";
+    /*content: "";*/
     width: 100%;
     height: 100%;
     position: absolute;
@@ -444,6 +445,16 @@ input {
 input[type="text"] {
     padding: 20px 0 20px 40px;
 }
+input[type="text"],
+input[type="text"]:focus {
+    user-select: none; /* supported by Chrome and Opera */
+   -webkit-user-select: none; /* Safari */
+   -khtml-user-select: none; /* Konqueror HTML */
+   -moz-user-select: none; /* Firefox */
+   -ms-user-select: none; /* Internet Explorer/Edge */
+   outline: none;
+   box-shadow: none;
+}
 #log-in,
 #start-app {
     display: none;
@@ -468,13 +479,119 @@ input[type="text"] {
     border: 4px solid #141115!important;
     letter-spacing: 1px;
 }
+.btn,
+.btn:focus {
+    user-select: none; /* supported by Chrome and Opera */
+   -webkit-user-select: none; /* Safari */
+   -khtml-user-select: none; /* Konqueror HTML */
+   -moz-user-select: none; /* Firefox */
+   -ms-user-select: none; /* Internet Explorer/Edge */
+   outline: none;
+   box-shadow: none;
+}
 .btn:hover {
     color: #FFF;
     background-color: #FF00FF;
     border: 4px solid #FF00FF!important;
 }
+.happiness-form {
+    display: flex;
+    flex-direction: row;
+    width: 100%;
+    justify-content: center;
+    align-items: center;
+    margin: 4% 0;
+}
+.happiness-form > div {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: -1.4%;
+    font-size: 1.8em;
+    color: #141115;
+}
+.range-left {
+    padding-right: 4%;
+}
+.range-right {
+    padding-left: 4%;
+}
+input[type=range] {
+    -webkit-appearance: none;
+    margin: 18px 0;
+    border: none;
+  }
+  input[type=range]:focus {
+    outline: none;
+  }
+  input[type=range]::-webkit-slider-runnable-track {
+    width: 100%;
+    height: 10px;
+    cursor: pointer;
+    background: #FF00FF;
+    border-radius: 0;
+  }
+  input[type=range]::-webkit-slider-thumb {
+    border: 1px solid #141115;
+    height: 20px;
+    width: 20px;
+    border-radius: 0;
+    background: #ffffff;
+    cursor: pointer;
+  }
+  input[type=range]:focus::-webkit-slider-runnable-track {
+    background: #FF00FF;
+  }
+  input[type=range]::-moz-range-track {
+    width: 100%;
+    height: 10px;
+    cursor: pointer;
+    background: #FF00FF;
+    border-radius: 0;
+  }
+  input[type=range]::-moz-range-thumb {
+    border: 3px solid #141115;
+    height: 20px;
+    width: 20px;
+    border-radius: 0;
+    background: #ffffff;
+    cursor: pointer;
+  }
+  input[type=range]::-ms-track {
+    width: 100%;
+    height: 8.4px;
+    cursor: pointer;
+    background: transparent;
+    border-color: transparent;
+    border-width: 16px 0;
+    color: transparent;
+  }
+  input[type=range]::-ms-fill-lower {
+    background: #FF00FF;
+    border: 0.2px solid #141115;
+    border-radius: 0;
+  }
+  input[type=range]::-ms-fill-upper {
+    background: #FF00FF;
+    border: 0.2px solid #010101;
+    border-radius: 0;
+  }
+  input[type=range]::-ms-thumb {
+    border: 1px solid #141115;
+    height: 20px;
+    width: 20px;
+    border-radius: 0;
+    background: #ffffff;
+    cursor: pointer;
+  }
+  input[type=range]:focus::-ms-fill-lower {
+    background: #FF00FF;
+  }
+  input[type=range]:focus::-ms-fill-upper {
+    background: #FF00FF;
+  }
 #smile {
-    width: 75%;
+    width: 65%;
     padding-bottom: 10%;
 }
 #smile .path-left,

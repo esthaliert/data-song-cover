@@ -1,9 +1,11 @@
 var redirect_uri = "http://127.0.0.1:5500/index.html"; // change this your value
 //var redirect_uri = "http://127.0.0.1:5500/index.html";
- 
 
-var client_id = 'a260bc4ff6e2426986e6aa05fabab58a'; 
-var client_secret = 'd15f23b22fbb45d2a4cede2ccf559f61'; // In a real app you should not expose your client_secret to the user
+
+var client_id_global = 'a260bc4ff6e2426986e6aa05fabab58a';
+var client_secret_global = 'd15f23b22fbb45d2a4cede2ccf559f61'; // In a real app you should not expose your client_secret to the user
+var client_id;
+var client_secret;
 
 var access_token = null;
 var refresh_token = null;
@@ -31,7 +33,13 @@ const SEARCH = 'https://api.spotify.com/v1/search?q={{SearchTerm}}&type=track&li
 
 function onPageLoad(){
     client_id = localStorage.getItem("client_id");
+    if (client_id == 'null') {
+      client_id = client_id_global;
+    }
     client_secret = localStorage.getItem("client_secret");
+    if (client_secret == 'null') {
+      client_secret = client_secret_global;
+    }
     if ( window.location.search.length > 0 ){
         handleRedirect();
     }
@@ -39,11 +47,11 @@ function onPageLoad(){
         access_token = localStorage.getItem("access_token");
         if ( access_token == null ){
             // we don't have an access token so present token section
-            //document.getElementById("tokenSection").style.display = 'block'; 
+            //document.getElementById("tokenSection").style.display = 'block';
         }
         else {
             // we have an access token so present device section
-            //document.getElementById("deviceSection").style.display = 'block';  
+            //document.getElementById("deviceSection").style.display = 'block';
             refreshDevices();
             refreshPlaylists();
             currentlyPlaying();
@@ -69,11 +77,11 @@ function getCode(){
 }
 
 function requestAuthorization(){
-    localStorage.setItem("client_id", client_id);
-    localStorage.setItem("client_secret", client_secret); // In a real app you should not expose your client_secret to the user
+    localStorage.setItem("client_id", client_id_global);
+    localStorage.setItem("client_secret", client_secret_global); // In a real app you should not expose your client_secret to the user
 
     let url = AUTHORIZE;
-    url += "?client_id=" + client_id;
+    url += "?client_id=" + client_id_global;
     url += "&response_type=code";
     url += "&redirect_uri=" + encodeURI(redirect_uri);
     url += "&show_dialog=true";
@@ -84,10 +92,10 @@ function requestAuthorization(){
 function fetchAccessToken( code ){
     console.log(access_token);
     let body = "grant_type=authorization_code";
-    body += "&code=" + code; 
+    body += "&code=" + code;
     body += "&redirect_uri=" + encodeURI(redirect_uri);
-    body += "&client_id=" + client_id;
-    body += "&client_secret=" + client_secret;
+    body += "&client_id=" + client_id_global;
+    body += "&client_secret=" + client_secret_global;
     callAuthorizationApi(body);
 }
 refreshAccessToken();
@@ -96,7 +104,7 @@ function refreshAccessToken(){
     refresh_token = localStorage.getItem("refresh_token");
     let body = "grant_type=refresh_token";
     body += "&refresh_token=" + refresh_token;
-    body += "&client_id=" + client_id;
+    body += "&client_id=" + client_id_global;
     callAuthorizationApi(body);
     checkLoginStatus();
 }
@@ -116,7 +124,7 @@ function callAuthorizationApi(body){
     let xhr = new XMLHttpRequest();
     xhr.open("POST", TOKEN, true);
     xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
-    xhr.setRequestHeader('Authorization', 'Basic ' + btoa(client_id + ":" + client_secret));
+    xhr.setRequestHeader('Authorization', 'Basic ' + btoa(client_id_global + ":" + client_secret_global));
     xhr.send(body);
     xhr.onload = handleAuthorizationResponse;
 }
@@ -141,7 +149,7 @@ function handleAuthorizationResponse(){
 }
 
 function refreshDevices(){
-    callApi( "GET", DEVICES, null, handleDevicesResponse );
+    callApi( "GET", DEVICES, null, handleDevicesResponse, true );
 }
 
 function handleDevicesResponse(){
@@ -171,21 +179,23 @@ function addDevice(item){
     let node = document.createElement("option");
     node.value = item.id;
     node.innerHTML = item.name;
-    document.getElementById("devices").appendChild(node); 
+    document.getElementById("devices").appendChild(node);
 }
 
-function callApi(method, url, body, callback){
+function callApi(method, url, body, callback, setHeader){
     let xhr = new XMLHttpRequest();
     xhr.open(method, url, true);
     xhr.setRequestHeader('Content-Type', 'application/json');
-    xhr.setRequestHeader('Authorization', 'Bearer ' + access_token);
+    if (setHeader == true) {
+        xhr.setRequestHeader('Authorization', 'Bearer ' + access_token);
+    }
     xhr.send(body);
     xhr.onload = callback;
     //console.log(xhr);
 }
 
 function refreshPlaylists(){
-    callApi( "GET", PLAYLISTS, null, handlePlaylistsResponse );
+    callApi( "GET", PLAYLISTS, null, handlePlaylistsResponse, true );
 }
 
 var playlistID;

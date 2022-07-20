@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="shortcut icon" type="image/x-icon" href="/img/favicon.ico">
-    <title>Spotify Web API Demo</title>
+    <title>Shapes of Music</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-giJF6kkoqNQ00vy+HMDP7azOuL0xtbfIcaT9wjKHr8RbDVddVHyTfAAsrekwKmP1" crossorigin="anonymous">
     <link href="/css/style.css" rel="stylesheet">
     <script src="/js/p5/p5.min.js"></script>
@@ -37,9 +37,13 @@
                     <div class="btn btn-sm active" id="log-in" onclick="requestAuthorization()">Log In</div>
                 </div>
                 <div class="form-slide slide-1" form-slide="1">
-                    <h2 id="title-1" class="slide-title">How happy are you?</h2>
+                    <h2 id="title-1" class="slide-title">How happy are you at this moment?</h2>
                     <form>
-                        <input type="range" value="0" id="happiness" name="happinessRange" min="1" max="100" onchange="happinessValue = this.value;">
+                        <div class="happiness-form">
+                            <div class="range-left">not happy</div>
+                            <input type="range" value="0" id="happiness" name="happinessRange" min="1" max="100" onchange="happinessValue = this.value;">
+                            <div class="range-right">very happy</div>
+                        </div>
                         <svg version="1.1" id="smile" x="0px" y="0px"
                         viewBox="0 0 1080 537.79" style="enable-background:new 0 0 1080 537.79;" xml:space="preserve">
                         <style type="text/css">
@@ -53,8 +57,8 @@
                 </div>
                 <div class="form-slide slide-2" form-slide="2">
                     <h2 id="title-2" class="slide-title">what is your favourite song?</h2>
-                    <form id="search-form">
-                        <input id="searchTrack" type="text" maxlength="100" placeholder="Track Name">
+                    <form id="search-form" autocomplete="off">
+                        <input id="searchTrack" autocomplete="off" type="text" maxlength="100" placeholder="Track Name">
                         <input type="submit" class="btn btn-sm" id="start-search" value="Search">
                     </form>
                     <div id="search-result-box">
@@ -67,6 +71,7 @@
                     <!--<div id="qrcode"></div>-->
                     <div id="endscreen">
                         <div id="timer">
+                            <p>Soon found on: <a href="shapes-of-music.com">shapes-of-music.com</p>
                             <svg version="1.1" id="timer_svg" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
                                 viewBox="0 0 150 150" style="enable-background:new 0 0 150 150;" xml:space="preserve">
                                 <style type="text/css">

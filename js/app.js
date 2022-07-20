@@ -7,6 +7,7 @@ var displayingCover = false;
 
 $( document ).ready(function() {
 
+
     checkLoginStatus();
 
     var inputReload = $('#happiness').val();
@@ -81,7 +82,7 @@ function nextForm(){
 }
 
 function currentlyPlaying(){
-    callApi( "GET", PLAYER + "?market=US", null, handleCurrentlyPlayingResponse );
+    callApi( "GET", PLAYER + "?market=US", null, handleCurrentlyPlayingResponse, true );
 }
 
 function handleCurrentlyPlayingResponse(){
@@ -125,7 +126,7 @@ function fetchSongs(plID){
     if ( playlist_id.length > 0 ){
         url = TRACKS.replace("{{PlaylistId}}", playlist_id);
         console.log(url);
-        callApi( "GET", url, null, handleTracksResponse );
+        callApi( "GET", url, null, handleTracksResponse, true );
     }
 }
 
@@ -133,7 +134,7 @@ function fetchSong(soID) {
     let song_id = soID;
     if ( song_id.length > 0 ){
         url = SONG.replace("{{TrackID}}", song_id);
-        callApi( "GET", url, null, handleSongResponse );
+        callApi( "GET", url, null, handleSongResponse, true );
     }
 }
 
@@ -157,20 +158,24 @@ function getArtist() {
     artist = $('.search-result.clicked').attr('artist');
     if ( artist_id.length > 0 ){
         url = ARTIST.replace("{{ArtistID}}", artist_id);
-        callApi( "GET", url, null, handleArtistResponse );
+        callApi( "GET", url, null, handleArtistResponse, true );
     }
 }
 
-var genreMin = 0.5;
+var genreMin = 0.45;
 var genreMax = 1.4;
 var genre;
 let genreSwitches = [genreMin,genreMin,genreMin,genreMin,genreMin,genreMin,genreMin,genreMin,genreMin,genreMin,genreMin,genreMin,genreMin,genreMin,genreMin,genreMin];
 const genreNumbers = ['electro house','sonstiges','country','folk','classical','jazz','blues','r&b','hip hop','world','reggae','latin','pop','rock','metal','punk'];
 let genreFamilies = [];
+var saveArtistName;
+var saveArtistID;
 function handleArtistResponse(){
     if ( this.status == 200 ){
         var data = JSON.parse(this.responseText);
         console.log(data);
+        saveArtistName = data.name;
+        saveArtistID = data.id;
         genre = data.genres;
         console.log(genre);
         genreFamilies = [];
@@ -198,7 +203,7 @@ function handleArtistResponse(){
         // Array zur Bestimmung der Vektor-Skalierung befüllen = an welchen Positionen der Blob "ausschägt"
         if (genreFamilies.length == 0) {
             // Fallback falls Song kein Genre hat
-            genreSwitches[1] = genreMax - 0.2;
+            genreSwitches[1] = genreMax;
         } else {
             // durch die festgelegten Genres durchiterieren
             for (var c = 0; c < genreNumbers.length; c++) {
@@ -218,7 +223,8 @@ function handleArtistResponse(){
             }
         }
         var blendValue = 0.7;
-        // Übergang zwischen Werten mit 1 und 0.3 
+        var blendValueSub = 0.55;
+        // Übergang zwischen Werten mit Max und Min
         for (var u = 0; u < genreSwitches.length; u++) {
             if (genreSwitches[u] == genreMax) {
                 var positionPrev;
@@ -250,12 +256,38 @@ function handleArtistResponse(){
                     if (genreSwitches[positionNext] !== genreMax) {
                         genreSwitches[positionNext] = blendValue;
                     }
-                    
-                    
+
+
                 }
             } else if (genreSwitches[u] == genreMin) {
                 var randomAdd = Math.random();
                 genreSwitches[u] = genreSwitches[u] + (randomAdd/25);
+            }
+        }
+        for (var u = 0; u < genreSwitches.length; u++) {
+            var positionPrev = u - 1;
+            var positionNext = u + 1;
+            if (genreSwitches[u] == blendValue) {
+                if (genreSwitches[positionPrev] !== genreMax) {
+                    if (u == 1){
+                        genreSwitches[16] == blendValueSub;
+                    } else if (u == 0) {
+                        console.log(genreSwitches[15]);
+                        genreSwitches[15] == blendValueSub;
+                        console.log(genreSwitches[15]);
+                    } else {
+                        genreSwitches[positionPrev] = blendValueSub;
+                    }
+                }
+                if (genreSwitches[positionNext] !== genreMax) {
+                    if (u == 14){
+                        genreSwitches[0] == blendValueSub;
+                    } else if (u == 15) {
+                        genreSwitches[1] == blendValueSub;
+                    } else {
+                        genreSwitches[positionNext] = blendValueSub;
+                    }
+                }
             }
         }
         console.log(genreSwitches);
@@ -290,7 +322,7 @@ function getSearchResults(){
     var searchString = $('#searchTrack').val();
     searchString = searchString.replaceAll(' ', '%20');
     url = SEARCH.replace("{{SearchTerm}}", searchString);
-    callApi( "GET", url, null, handleSearchResponse );
+    callApi( "GET", url, null, handleSearchResponse, true );
 }
 var listNumber = 0;
 function handleSearchResponse(){
@@ -336,7 +368,7 @@ function handleSearchResponse(){
 function getFeatures(_trackID){
     trID = _trackID;
     url = FEATURES.replace("{{TrackID}}", trID);
-    callApi( "GET", url, null, handleFeatureResponse);
+    callApi( "GET", url, null, handleFeatureResponse, true);
 }
 
 function handleFeatureResponse(){
@@ -357,7 +389,7 @@ function handleFeatureResponse(){
         var valenceValue = data.valence;
         var bpm = data.tempo;
         var duration = data.duration_ms;
-        resultData[trackID] = 
+        resultData[trackID] =
             {
                 "key": keyValue,
                 "mode": modeValue,
@@ -381,8 +413,8 @@ function handleFeatureResponse(){
 
 // _title, _artist, _artistID, _albumName, _albumID, _trackID, _trackNr, _discNr, _albumImg
 function generateResult() {
-    // title = _title; 
-    // artist = _artist; 
+    // title = _title;
+    // artist = _artist;
     // artistID = _artistID;
     // albumName = _albumName
     // albumID = _albumID;
@@ -390,7 +422,7 @@ function generateResult() {
     // trackNr =  _trackNr;
     // discNr = _discNr;
     // albumImg = _albumImg;
-    
+
 }
 
 $(document).on("click", "#start-search", function(event){
@@ -416,6 +448,7 @@ var songID;
 var songNr;
 var albumID;
 var discNr;
+var happinessValue;
 $(document).on("click", "li.search-result .play-song" , function() {
     var clickedSong = $('.search-result.clicked');
     var clickID = clickedSong.attr('id');
@@ -429,7 +462,6 @@ $(document).on("click", "li.search-result .play-song" , function() {
     loudnessValueCover = songFeatures.loudness;
     valenceValueCover = songFeatures.valence;
     tempoValueCover = songFeatures.tempo;
-    console.log(tempoValueCover);
     durationValueCover = songFeatures.duration;
     durationCount = parseInt(durationValueCover/10000);
     songID = clickedSong.attr('id');
@@ -444,12 +476,12 @@ $(document).on("click", "li.search-result .play-song" , function() {
         getTrack(songNr, albumID, discNr);
         getAnalysis();
         if (keyValueCover !== null && typeof keyValueCover !== 'undefined') {
-            //addToPlaylist(songID);
+            addToPlaylist(songID);
         }
     }, 1700);
     //playSong(songNr, albumID, discNr);
     console.log('start');
-    
+
 })
 
 
@@ -460,7 +492,7 @@ function addToPlaylist(_songID){
     body.context_uri = "spotify:track:" + trackID;
     body.offset = {};
     url = ADD.replace("{{PlaylistID}}", playlistID);
-    callApi( "POST", url + trackID, JSON.stringify(body), handlePlaylistEditResponse );
+    callApi( "POST", url + trackID, JSON.stringify(body), handlePlaylistEditResponse, true );
 }
 
 function handlePlaylistEditResponse(){
@@ -483,7 +515,7 @@ function handlePlaylistEditResponse(){
 function getAnalysis(){
     var trID = $('.search-result.clicked').attr('id');
     url = ANALYSIS.replace("{{TrackID}}", trID);
-    callApi( "GET", url, null, handleAnalysisResponse );
+    callApi( "GET", url, null, handleAnalysisResponse, true );
 }
 
 function handleAnalysisResponse(){
@@ -511,16 +543,29 @@ function getTrack(){
     var trID = $('.search-result.clicked').attr('id');
     title = $('.search-result.clicked').attr('songtitle');
     url = SONG.replace("{{TrackID}}", trID);
-    callApi( "GET", url, null, handleTrackResponse );
+    callApi( "GET", url, null, handleTrackResponse, true );
 }
 
+var songPreview;
+var songPosition;
+var markets;
+var saveAlbum;
+var saveAlbumID;
+var saveTrack;
+var saveTrackID;
+var saveTrackUrl;
 function handleTrackResponse(){
     if ( this.status == 200 ){
         var data = JSON.parse(this.responseText);
         console.log(data);
         markets = data.available_markets.length;
-        var songPreview = data.preview_url;
-        var songPosition = data.track_number;
+        songPreview = data.preview_url;
+        songPosition = data.track_number;
+        saveAlbum = data.album.name;
+        saveAlbumID = data.album.id;
+        saveTrack = data.name;
+        saveTrackID = data.id;
+        saveTrackUrl = data.external_urls.spotify;
         var songDuration = data.duration_ms;
         //console.log(songPreview);
         if (songPreview !== null) {
@@ -542,7 +587,35 @@ function handleTrackResponse(){
     }
 }
 
+var saveData = {};
+
 function playPreview(_songPreview){
+    saveData =
+    {
+        "name": saveTrack,
+        "artist": saveArtistName,
+        "album": saveAlbum,
+        "external_url_spotify": saveTrackUrl,
+        "songID": saveTrackID,
+        "artistID": saveArtistID,
+        "albumID": saveAlbumID,
+        "genres": genre,
+        "available_markets": markets,
+        "key": keyValueCover,
+        "mode": modeValueCover,
+        "danceability": danceabilityValueCover,
+        "duration_ms": durationValueCover,
+        "energy": energyValueCover,
+        "loudness": loudnessValueCover,
+        "tempo": tempoValueCover,
+        "valence": valenceValueCover,
+        "happiness": happinessValue,
+        "img_data": $('#cover-canvas').find('canvas')[0].toDataURL('image/jpg'),
+        "preview_url": songPreview,
+        "song_position": songPosition
+    }
+    console.log(saveData);
+    postData(JSON.stringify(saveData));
     let preview = _songPreview;
     var audio = new Audio(preview);
     audio.volume = 0;
@@ -576,6 +649,16 @@ function playPreview(_songPreview){
     }, 30000)
 };
 
+function postData(_saveData) {
+    _saveData['password'] = '';
+    callApi( "POST", 'https://dev.nukito-von-falkensee.de/post.php', _saveData, handlePostData, false);
+}
+
+function handlePostData(){
+    console.log('gespeichert');
+    console.log(this);
+}
+
 function playSong(_songPosition, _albumID, _discNr, _songDuration){
     //let playlist_id = plID;
     let trackIndex = _songPosition-1;
@@ -595,13 +678,13 @@ function playSong(_songPosition, _albumID, _discNr, _songDuration){
     //     console.log('mehr als 2');
     //     body.offset.position = trackIndex;
     // } else {
-        
+
     // }
      body.offset = {};
      body.offset.position_ms = 0;
      body.offset.position = trackIndex;
      console.log(body.offset.position);
-    callApi( "PUT", PLAY + "?device_id=" + deviceId(), JSON.stringify(body), handleApiResponse );
+    callApi( "PUT", PLAY + "?device_id=" + deviceId(), JSON.stringify(body), handleApiResponse, true );
 
     setTimeout(function() {
         $('.progress-bar').addClass('active');
@@ -620,7 +703,7 @@ function playSong(_songPosition, _albumID, _discNr, _songDuration){
 //     let node = document.createElement("option");
 //     node.value = item.id;
 //     node.innerHTML = item.name + " (" + item.tracks.total + ")";
-//     document.getElementById("playlists").appendChild(node); 
+//     document.getElementById("playlists").appendChild(node);
 // }
 
 // function removeAllItems( elementId ){
@@ -646,31 +729,31 @@ function play(){
     body.offset.position = trackindex.length > 0 ? Number(trackindex) : 0;
     body.offset.position_ms = 0;
     console.log(body);
-    callApi( "PUT", PLAY + "?device_id=" + deviceId(), JSON.stringify(body), handleApiResponse );
+    callApi( "PUT", PLAY + "?device_id=" + deviceId(), JSON.stringify(body), handleApiResponse, true );
 }
 
 function shuffle(){
-    callApi( "PUT", SHUFFLE + "?state=true&device_id=" + deviceId(), null, handleApiResponse );
-    play(); 
+    callApi( "PUT", SHUFFLE + "?state=true&device_id=" + deviceId(), null, handleApiResponse, true );
+    play();
 }
 
 function pause(){
-    callApi( "PUT", PAUSE + "?device_id=" + deviceId(), null, handleApiResponse );
+    callApi( "PUT", PAUSE + "?device_id=" + deviceId(), null, handleApiResponse, true );
 }
 
 function next(){
-    callApi( "POST", NEXT + "?device_id=" + deviceId(), null, handleApiResponse );
+    callApi( "POST", NEXT + "?device_id=" + deviceId(), null, handleApiResponse, true );
 }
 
 function previous(){
-    callApi( "POST", PREVIOUS + "?device_id=" + deviceId(), null, handleApiResponse );
+    callApi( "POST", PREVIOUS + "?device_id=" + deviceId(), null, handleApiResponse, true );
 }
 
 function transfer(){
     let body = {};
     body.device_ids = [];
     body.device_ids.push(deviceId())
-    callApi( "PUT", PLAYER, JSON.stringify(body), handleApiResponse );
+    callApi( "PUT", PLAYER, JSON.stringify(body), handleApiResponse, true );
 }
 
 function handleApiResponse(){
@@ -687,7 +770,7 @@ function handleApiResponse(){
     else {
         console.log(this.responseText);
         alert(this.responseText);
-    }    
+    }
 }
 
 function deviceId(){
@@ -698,7 +781,7 @@ function fetchTracks(){
     let playlist_id = document.getElementById("playlists").value;
     if ( playlist_id.length > 0 ){
         url = TRACKS.replace("{{PlaylistId}}", playlist_id);
-        callApi( "GET", url, null, handleTracksResponse );
+        callApi( "GET", url, null, handleTracksResponse, true );
     }
 }
 
@@ -721,7 +804,7 @@ function handleTracksResponse(){
 
 
 function currentlyPlaying(){
-    callApi( "GET", PLAYER + "?market=US", null, handleCurrentlyPlayingResponse );
+    callApi( "GET", PLAYER + "?market=US", null, handleCurrentlyPlayingResponse, true );
 }
 
 function handleCurrentlyPlayingResponse(){

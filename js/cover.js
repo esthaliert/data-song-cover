@@ -348,19 +348,19 @@ function draw() {
             // var index = 0;
             //console.log(pointsOrigin);
     
-            curveVertex(pointFirstVertex.x, pointFirstVertex.y);
+            curveVertex(pointFirstVertex.x+(randomWobble/50), pointFirstVertex.y+(randomWobble/50));
             for (var i = 0; i < pointsOrigin.length; i++){
                 let p = pointsOrigin[i];
     
                 iteration++;
                 // Scaling ein bisschen abändern, damit sich der Rand etwas bewegt
-                // if(iteration%100 == 0) {
-                //     randomWobble = Math.random();
-                // }
+                if(iteration%100 == 0) {
+                    randomWobble = Math.random();
+                }
                 let lerpValue = genreSwitches[i];
-                let lerpedPoint = p5.Vector.mult(p, lerpValue);
+                let lerpedPoint = p5.Vector.mult(p, lerpValue+(randomWobble/50));
                 let point = p5.Vector.add(lerpedPoint, 0);
-                curveTightness(-0.5);
+                curveTightness(-1);
                 curveVertex(point.x, point.y);
     
                 // index++;
@@ -368,8 +368,8 @@ function draw() {
     
             // curveVertex(pointFirstVertex.x, pointFirstVertex.y);
     
-            curveVertex(pointZeroVertex.x, pointZeroVertex.y);
-            curveVertex(pointLastVertex.x, pointLastVertex.y);
+            curveVertex(pointZeroVertex.x+(randomWobble/50), pointZeroVertex.y+(randomWobble/50));
+            curveVertex(pointLastVertex.x+(randomWobble/50), pointLastVertex.y+(randomWobble/50));
     
             // curveVertex(pointLastVertex.x, pointLastVertex.y);
     
